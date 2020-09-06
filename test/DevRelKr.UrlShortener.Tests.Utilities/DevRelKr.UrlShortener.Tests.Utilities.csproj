@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+
+    <AssemblyName>DevRelKr.UrlShortener.Tests.Utilities</AssemblyName>
+    <RootNamespace>DevRelKr.UrlShortener.Tests.Utilities</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Moq" Version="4.14.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\DevRelKr.UrlShortener.Models\DevRelKr.UrlShortener.Models.csproj" />
+  </ItemGroup>
+
+</Project>

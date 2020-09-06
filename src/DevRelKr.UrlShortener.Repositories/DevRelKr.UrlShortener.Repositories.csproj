@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+
+    <AssemblyName>DevRelKr.UrlShortener.Repositories</AssemblyName>
+    <RootNamespace>DevRelKr.UrlShortener.Repositories</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.12.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DevRelKr.UrlShortener.Models\DevRelKr.UrlShortener.Models.csproj" />
+  </ItemGroup>
+
+</Project>

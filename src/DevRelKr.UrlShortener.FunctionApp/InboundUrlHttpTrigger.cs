@@ -22,7 +22,7 @@ namespace DevRelKr.UrlShortener.FunctionApp
         /// <returns>Returns the <see cref="RedirectResult"/> instance as the <see cref="Task{IActionResult}"/> instance.</returns>
         [FunctionName(nameof(InboundUrlHttpTrigger.BounceUrl))]
         public async Task<IActionResult> BounceUrl(
-            [HttpTrigger(AuthorizationLevel.Function, "GET", Route = "{shortUrl}")] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "GET", Route = "{shortUrl}")] HttpRequest req,
             string shortUrl,
             ILogger log)
         {

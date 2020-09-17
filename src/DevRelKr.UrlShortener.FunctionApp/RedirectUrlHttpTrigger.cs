@@ -46,7 +46,7 @@ namespace DevRelKr.UrlShortener.FunctionApp
         /// <returns>Returns the <see cref="ContentResult"/> instance as the <see cref="Task{IActionResult}"/> instance.</returns>
         [FunctionName(nameof(RedirectUrlHttpTrigger.RedirectUrl))]
         public async Task<IActionResult> RedirectUrl(
-            [HttpTrigger(AuthorizationLevel.Function, "GET", Route = "b/{shortUrl}")] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "GET", Route = "b/{shortUrl}")] HttpRequest req,
             string shortUrl,
             ExecutionContext context,
             ILogger log)

@@ -12,10 +12,10 @@ namespace DevRelKr.UrlShortener.Models.Tests.Configurations
     public class AppSettingsTests
     {
         [DataTestMethod]
-        [DataRow(true, "favicon.ico", "UA-123456-7", "dvrl.kr", 10, "abcdefg", "database", "container", "partitionkeypath")]
-        public void Given_ShortenUrlSettings_When_Initiated_Then_It_Should_Return_Result(bool isDevelopment, string filesToBeIgnored, string gaCode, string hostname, int length, string connectionString, string databaseName, string containerName, string partitionKeyPath)
+        [DataRow("Development", "favicon.ico", "UA-123456-7", "dvrl.kr", 10, "abcdefg", "database", "container", "partitionkeypath")]
+        public void Given_ShortenUrlSettings_When_Initiated_Then_It_Should_Return_Result(string environment, string filesToBeIgnored, string gaCode, string hostname, int length, string connectionString, string databaseName, string containerName, string partitionKeyPath)
         {
-            Environment.SetEnvironmentVariable("Development", isDevelopment.ToString().ToLowerInvariant());
+            Environment.SetEnvironmentVariable("AZURE_FUNCTIONS_ENVIRONMENT", environment);
             Environment.SetEnvironmentVariable("FilesToBeIgnored", filesToBeIgnored);
             Environment.SetEnvironmentVariable("GoogleAnalyticsCode", gaCode);
             Environment.SetEnvironmentVariable("ShortenUrl__Hostname", hostname);
@@ -27,7 +27,7 @@ namespace DevRelKr.UrlShortener.Models.Tests.Configurations
 
             var settings = new AppSettings();
 
-            settings.IsDevelopment.Should().BeTrue();
+            settings.IsProduction.Should().BeFalse();
             settings.FilesToBeIgnired.Should().BeEquivalentTo(filesToBeIgnored.Split(',', StringSplitOptions.RemoveEmptyEntries));
             settings.GoogleAnalyticsCode.Should().Be(gaCode);
 

@@ -66,7 +66,7 @@ namespace DevRelKr.UrlShortener.FunctionApp
             catch (Exception ex)
             {
                 var error = new ExceptionResponse() { Message = ex.Message };
-                if (this._settings.IsDevelopment)
+                if (!this._settings.IsProduction)
                 {
                     error.StackTrace = ex.StackTrace;
                 }

@@ -19,7 +19,7 @@ namespace DevRelKr.UrlShortener.Models.Configurations
         public AppSettings()
             : base()
         {
-            this.IsDevelopment = this.Config.GetValue<bool>("Development");
+            this.IsProduction = this.Config.GetValue<string>("AZURE_FUNCTIONS_ENVIRONMENT") == "Production";
             this.FilesToBeIgnired = this.Config.GetValue<string>("FilesToBeIgnored")
                                                .Split(new[] { "," }, System.StringSplitOptions.RemoveEmptyEntries).ToList();
             this.GoogleAnalyticsCode = this.Config.GetValue<string>("GoogleAnalyticsCode");
@@ -28,9 +28,9 @@ namespace DevRelKr.UrlShortener.Models.Configurations
         }
 
         /// <summary>
-        /// Gets the value indicating whether the runtime is in development or not.
+        /// Gets the value indicating whether the runtime is in production or not.
         /// </summary>
-        public virtual bool IsDevelopment { get; }
+        public virtual bool IsProduction { get; }
 
         /// <summary>
         /// Gets the list of files to be ignored from rendering.

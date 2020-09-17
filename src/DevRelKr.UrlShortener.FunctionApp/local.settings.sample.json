@@ -3,8 +3,10 @@
   "Values": {
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
     "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+    "AZURE_FUNCTIONS_ENVIRONMENT": "<Development|Staging|Production>",
 
-    "Development": "true",
+    "CosmosDBConnection": "<COSMOS_DB_CONNECTION_STRING>",
+
     "DefaultRedirectUrl": "<DEFAULT_REDIRECTION_URL>",
     "FilesToBeIgnored": "favicon.ico",
     "GoogleAnalyticsCode": "<GOOGLE_ANALYTICS_CODE>",

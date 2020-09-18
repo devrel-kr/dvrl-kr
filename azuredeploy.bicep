@@ -208,7 +208,7 @@ resource fncapp 'Microsoft.Web/sites@2019-08-01' = {
                 }
                 {
                     name: 'AzureWebJobsStorage'
-                    value: 'DefaultEndpointsProtocol=https;AccountName=${st.name};EndpointSuffix=core.windows.net;AccountKey=${listKeys(st.id, '2019-06-01').keys[0].value}'
+                    value: 'DefaultEndpointsProtocol=https;AccountName=${st.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(st.id, '2019-06-01').keys[0].value}'
                 }
                 {
                     name: 'FUNCTIONS_EXTENSION_VERSION'
@@ -224,7 +224,7 @@ resource fncapp 'Microsoft.Web/sites@2019-08-01' = {
                 }
                 {
                     name: 'WEBSITE_CONTENTAZUREFILECONNECTIONSTRING'
-                    value: 'DefaultEndpointsProtocol=https;AccountName=${st.name};EndpointSuffix=core.windows.net;AccountKey=${listKeys(st.id, '2019-06-01').keys[0].value}'
+                    value: 'DefaultEndpointsProtocol=https;AccountName=${st.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(st.id, '2019-06-01').keys[0].value}'
                 }
                 {
                     name: 'WEBSITE_CONTENTSHARE'

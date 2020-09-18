@@ -20,9 +20,9 @@ jobs:
     - name: Run ARM TTK
       uses: aliencube/arm-ttk-actions@v0.5
       id: armtest
-      continue-on-error: true
       with:
         path: './'
+        skips: IDs Should Be Derived From ResourceIDs
 
     - name: ARM TTK test result
       shell: bash

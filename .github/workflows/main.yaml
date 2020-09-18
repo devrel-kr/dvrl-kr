@@ -18,12 +18,14 @@ jobs:
         files: '**/*.bicep'
 
     - name: Run ARM TTK
-      uses: venura9/arm-ttk@master
+      uses: aliencube/arm-ttk-actions@v0.5
       id: armtest
       with:
         path: ./azuredeploy.json
 
     - name: ARM TTK test result
+      shell: bash
+      continue-on-error: true
       run: |
-        content=${{ steps.armtest.outputs.results }}
-        echo "Results $content"
+        results=${{ steps.armtest.outputs.results }}
+        echo "Results $results"

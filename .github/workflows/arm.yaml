@@ -1,9 +1,6 @@
 name: ARM Template Build and Test
 
-on:
-  push:
-    paths:
-    - 'azuredeploy.bicep'
+on: [ push, pull_request ]
 
 jobs:
   build_and_test:

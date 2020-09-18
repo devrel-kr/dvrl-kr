@@ -3,7 +3,7 @@ name: ARM Template Build and Test
 on:
   push:
     paths:
-    - '**.bicep'
+    - 'azuredeploy.bicep'
 
 jobs:
   build_and_test:

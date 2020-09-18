@@ -22,9 +22,8 @@ jobs:
       id: armtest
       with:
         path: './'
-        skips: "IDs Should Be Derived From ResourceIDs"
 
-    - name: ARM TTK test result
+    - name: Show ARM TTK test result
       shell: bash
       continue-on-error: true
       run: |

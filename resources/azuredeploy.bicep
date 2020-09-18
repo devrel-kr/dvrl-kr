@@ -147,7 +147,7 @@ var appInsights = {
     location: location
 }
 
-resource appins 'Microsoft.Insights/components@2018-05-01-preview' = {
+resource appins 'Microsoft.Insights/components@2020-02-02-preview' = {
     name: appInsights.name
     location: appInsights.location
     kind: 'web'

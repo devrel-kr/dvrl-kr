@@ -200,7 +200,6 @@
       "location": "[variables('appInsights').location]",
       "kind": "web",
       "properties": {
-        "ApplicationId": "[variables('appInsights').name]",
         "Application_Type": "web",
         "Request_Source": "IbizaWebAppExtensionCreate"
       }

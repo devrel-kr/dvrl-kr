@@ -152,7 +152,7 @@ resource appins 'Microsoft.Insights/components@2018-05-01-preview' = {
     location: appInsights.location
     kind: 'web'
     properties: {
-        ApplicationId: appInsights.name
+        // ApplicationId: appInsights.name
         Application_Type: 'web'
         Request_Source: 'IbizaWebAppExtensionCreate'
     }

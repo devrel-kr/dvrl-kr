@@ -21,7 +21,8 @@ jobs:
       uses: aliencube/arm-ttk-actions@v0.5
       id: armtest
       with:
-        path: './'
+        path: ./
+        files: azuredeploy.json
 
     - name: Show ARM TTK test result
       shell: bash

@@ -21,7 +21,7 @@ jobs:
       uses: aliencube/arm-ttk-actions@v0.5
       id: armtest
       with:
-        path: ./azuredeploy.json
+        path: './'
 
     - name: ARM TTK test result
       shell: bash

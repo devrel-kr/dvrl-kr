@@ -18,7 +18,7 @@ jobs:
         files: '**/*.bicep'
 
     - name: Run ARM TTK
-      uses: venura9/arm-ttk@v1
+      uses: venura9/arm-ttk@1.0
       id: armtest
       with:
         path: ./azuredeploy.json

@@ -1,0 +1,32 @@
+name: ARM Template Build and Test
+
+on:
+  push:
+    paths:
+    - '**.bicep'
+
+jobs:
+  build_and_test:
+    name: Build and Test
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout the repo
+      uses: actions/checkout@v2
+
+    - name: Run Bicep build
+      uses: aliencube/bicep-build-actions@v0.1
+      with:
+        files: '**/*.bicep'
+
+    - name: Run ARM TTK
+      uses: venura9/arm-ttk@v1
+      id: armtest
+      with:
+        path: ./azuredeploy.json
+
+    - name: ARM TTK test result
+      run: |
+        content=${{ steps.armtest.outputs.results }}
+        echo "Results $content"

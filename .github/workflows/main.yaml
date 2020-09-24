@@ -89,10 +89,10 @@ jobs:
 
     - name: Get FunctionApp publish profile
       id: publishprofile
-      shell: bash
+      shell: pwsh
       run: |
-        profile=$(az functionapp deployment list-publishing-profiles -g ${{ secrets.RESOURCE_GROUP_NAME_DEV }} -n ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_DEV }} --xml --output tsv)
-        echo "::set-output name=profile::$profile"
+        $profile = az functionapp deployment list-publishing-profiles -g ${{ secrets.RESOURCE_GROUP_NAME_DEV }} -n ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_DEV }} --xml --output tsv
+        Write-Output "::set-output name=profile::$profile"
 
     - name: Deploy FunctionApp
       uses: Azure/functions-action@v1

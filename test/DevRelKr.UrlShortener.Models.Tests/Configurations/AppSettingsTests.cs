@@ -20,7 +20,7 @@ namespace DevRelKr.UrlShortener.Models.Tests.Configurations
             Environment.SetEnvironmentVariable("GoogleAnalyticsCode", gaCode);
             Environment.SetEnvironmentVariable("ShortenUrl__Hostname", hostname);
             Environment.SetEnvironmentVariable("ShortenUrl__Length", length.ToString());
-            Environment.SetEnvironmentVariable("CosmosDb__ConnectionString", connectionString);
+            Environment.SetEnvironmentVariable("CosmosDBConnection", connectionString);
             Environment.SetEnvironmentVariable("CosmosDb__DatabaseName", databaseName);
             Environment.SetEnvironmentVariable("CosmosDb__ContainerName", containerName);
             Environment.SetEnvironmentVariable("CosmosDb__PartitionKeyPath", partitionKeyPath);

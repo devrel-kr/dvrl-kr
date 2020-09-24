@@ -26,6 +26,12 @@ namespace DevRelKr.UrlShortener.Tests.Utilities
                     .Setup(p => p.Config)
                     .Returns(config);
 
+            var shortenUrlSettings = new Mock<ShortenUrlSettings>();
+            var cosmosDbSettings = new Mock<CosmosDbSettings>();
+
+            settings.SetupGet(p => p.ShortenUrl).Returns(shortenUrlSettings.Object);
+            settings.SetupGet(p => p.CosmosDb).Returns(cosmosDbSettings.Object);
+
             return settings;
         }
     }

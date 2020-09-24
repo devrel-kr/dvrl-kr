@@ -349,5 +349,8 @@ MigrationBackup/
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
 
+assets/10000w/
 .DS_Store
 *.local.json
+*.ai
+*.pptx

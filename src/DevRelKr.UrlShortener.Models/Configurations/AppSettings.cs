@@ -25,6 +25,7 @@ namespace DevRelKr.UrlShortener.Models.Configurations
             this.GoogleAnalyticsCode = this.Config.GetValue<string>("GoogleAnalyticsCode");
             this.ShortenUrl = this.Config.Get<ShortenUrlSettings>("ShortenUrl");
             this.CosmosDb = this.Config.Get<CosmosDbSettings>("CosmosDb");
+            this.CosmosDb.ConnectionString = this.Config.GetValue<string>("CosmosDBConnection");
         }
 
         /// <summary>

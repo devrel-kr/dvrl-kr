@@ -14,7 +14,6 @@
     "ShortenUrl__Hostname": "<HOSTNAME>",
     "ShortenUrl__Length": "10",
 
-    "CosmosDb__ConnectionString": "<COSMOS_DB_CONNECTION_STRING>",
     "CosmosDb__DatabaseName": "<COSMOS_DB_DATABASE_NAME>",
     "CosmosDb__ContainerName": "<COSMOS_DB_CONTAINER_NAME>",
     "CosmosDb__PartitionKeyPath": "/owner"

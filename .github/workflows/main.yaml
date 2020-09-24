@@ -80,7 +80,7 @@ jobs:
     - name: Test solution
       shell: bash
       run: |
-        dotnet test . - c Release
+        dotnet test . -c Release
 
     - name: Create FunctionApp artifact
       shell: bash

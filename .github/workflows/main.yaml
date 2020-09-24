@@ -87,6 +87,11 @@ jobs:
       run: |
         dotnet publish ${{ env.FUNCTIONAPP_PATH }} -c Release -o published
 
+    - name: Add Azure CLI extensions
+      shell: bash
+      run: |
+        az extension add -n webapp
+
     - name: Get Azure CLI version
       shell: bash
       run: |

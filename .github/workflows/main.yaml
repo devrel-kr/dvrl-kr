@@ -87,12 +87,17 @@ jobs:
       run: |
         dotnet publish ${{ env.FUNCTIONAPP_PATH }} -c Release -o published
 
+    - name: Get Azure CLI version
+      shell: bash
+      run: |
+        az --version
+
     - name: Get FunctionApp publish profile
       id: publishprofile
-      shell: pwsh
+      shell: bash
       run: |
-        $profile = az functionapp deployment list-publishing-profiles -g ${{ secrets.RESOURCE_GROUP_NAME_DEV }} -n ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_DEV }} --xml --output tsv
-        Write-Output "::set-output name=profile::$profile"
+        profile=$(az functionapp deployment list-publishing-profiles -g ${{ secrets.RESOURCE_GROUP_NAME_DEV }} -n ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_DEV }} --xml --output tsv)
+        echo "::set-output name=profile::$profile"
 
     - name: Deploy FunctionApp
       uses: Azure/functions-action@v1

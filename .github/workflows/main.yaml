@@ -97,19 +97,19 @@ jobs:
     #     appName: ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_DEV }}
     #     isFunctionApp: true
 
-    - name: Get FunctionApp publish profile
-      id: publishprofile
-      shell: bash
-      run: |
-        profile=$(az functionapp deployment list-publishing-profiles -g ${{ secrets.RESOURCE_GROUP_NAME_DEV }} -n ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_DEV }} --xml --output tsv)
-        echo "::set-output name=profile::$profile"
+    # - name: Get FunctionApp publish profile
+    #   id: publishprofile
+    #   shell: bash
+    #   run: |
+    #     profile=$(az functionapp deployment list-publishing-profiles -g ${{ secrets.RESOURCE_GROUP_NAME_DEV }} -n ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_DEV }} --xml --output tsv)
+    #     echo "::set-output name=profile::$profile"
 
     - name: Deploy FunctionApp
       uses: Azure/functions-action@v1
       with:
         app-name: ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_DEV }}
         package: published
-        publish-profile: ${{ steps.publishprofile.outputs.profile }}
+        publish-profile: ${{ secrets.RESOURCE_FUNCTIONAPP_PUBLISH_PROFILE }}
 
     - name: Update FunctionApp settings
       uses: Azure/appservice-settings@v1

@@ -89,7 +89,7 @@ jobs:
 
     - name: Get FunctionApp publish profile
       id: publishprofile
-      uses: aliencube/publish-profile-actions@v1
+      uses: aliencube/publish-profile-actions@v1.0.1
       env:
         AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
       with:

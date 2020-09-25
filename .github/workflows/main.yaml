@@ -92,7 +92,6 @@ jobs:
       run: |
         az extension add -n alias
         az extension add -n interactive
-        az extension add -n find
         az extension add -n webapp
 
     - name: Get Azure CLI version

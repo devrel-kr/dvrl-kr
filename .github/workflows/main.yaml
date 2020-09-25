@@ -87,31 +87,29 @@ jobs:
       run: |
         dotnet publish ${{ env.FUNCTIONAPP_PATH }} -c Release -o published
 
-    - name: Add Azure CLI extensions
-      shell: bash
-      run: |
-        az extension add -n alias
-        az extension add -n interactive
-        az extension add -n webapp
-
-    - name: Get Azure CLI version
-      shell: bash
-      run: |
-        az --version
-
-    - name: Get FunctionApp publish profile 1
-      shell: bash
-      run: |
-        az functionapp deployment list-publishing-profiles -g ${{ secrets.RESOURCE_GROUP_NAME_DEV }} -n ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_DEV }} --xml --output tsv
-        az functionapp deployment list-publishing-profiles -g ${{ secrets.RESOURCE_GROUP_NAME_DEV }} -n ${{ secrets.RESOURCE_GROUP_NAME_DEV }} --xml | sed -e 's|\"<|<|g' | sed -e 's|>\"|>|g' | sed -e 's|\\"|"|g' | sed -e 's|\\\\|\\|g'
-
     - name: Get FunctionApp publish profile
       id: publishprofile
-      shell: bash
-      run: |
-        profile=$(az functionapp deployment list-publishing-profiles -g ${{ secrets.RESOURCE_GROUP_NAME_DEV }} -n ${{ secrets.RESOURCE_GROUP_NAME_DEV }} --xml | sed -e 's|\"<|<|g' | sed -e 's|>\"|>|g' | sed -e 's|\\"|"|g' | sed -e 's|\\\\|\\|g')
-        # profile=$(az functionapp deployment list-publishing-profiles -g ${{ secrets.RESOURCE_GROUP_NAME_DEV }} -n ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_DEV }} --xml --output tsv)
-        echo "::set-output name=profile::$profile"
+      uses: aliencube/publish-profile-actions@v1
+      env:
+        AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      with:
+        resourceGroupName: ${{ secrets.RESOURCE_GROUP_NAME_DEV }}
+        appName: ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_DEV }}
+        isFunctionApp: true
+
+    # - name: Get FunctionApp publish profile 1
+    #   shell: bash
+    #   run: |
+    #     az functionapp deployment list-publishing-profiles -g ${{ secrets.RESOURCE_GROUP_NAME_DEV }} -n ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_DEV }} --xml --output tsv
+    #     az functionapp deployment list-publishing-profiles -g ${{ secrets.RESOURCE_GROUP_NAME_DEV }} -n ${{ secrets.RESOURCE_GROUP_NAME_DEV }} --xml | sed -e 's|\"<|<|g' | sed -e 's|>\"|>|g' | sed -e 's|\\"|"|g' | sed -e 's|\\\\|\\|g'
+
+    # - name: Get FunctionApp publish profile
+    #   id: publishprofile
+    #   shell: bash
+    #   run: |
+    #     profile=$(az functionapp deployment list-publishing-profiles -g ${{ secrets.RESOURCE_GROUP_NAME_DEV }} -n ${{ secrets.RESOURCE_GROUP_NAME_DEV }} --xml | sed -e 's|\"<|<|g' | sed -e 's|>\"|>|g' | sed -e 's|\\"|"|g' | sed -e 's|\\\\|\\|g')
+    #     # profile=$(az functionapp deployment list-publishing-profiles -g ${{ secrets.RESOURCE_GROUP_NAME_DEV }} -n ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_DEV }} --xml --output tsv)
+    #     echo "::set-output name=profile::$profile"
 
     - name: Deploy FunctionApp
       uses: Azure/functions-action@v1

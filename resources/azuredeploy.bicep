@@ -109,7 +109,7 @@ resource cosdbaSqlDb 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2020-06
 }
 
 resource cosdbaContainer 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2020-06-01-preview' = {
-    name: '${cosdba.name}/${cosmosDb.dbName}/${cosmosDb.containerName}'
+    name: '${cosdbaSqlDb.name}/${cosmosDb.containerName}'
     location: cosmosDb.location
     properties: {
         resource: {

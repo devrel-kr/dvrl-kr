@@ -6,17 +6,12 @@ env:
   FUNCTIONAPP_PATH: 'src/DevRelKr.UrlShortener.FunctionApp'
 
 jobs:
-  arm_template_build_test_deploy_dev:
-    name: 'DEV: ARM Templates Build, Test & Deploy'
+  arm_template_build_test:
+    name: 'DEV: ARM Templates Build & Test'
 
     runs-on: ubuntu-latest
 
     steps:
-    - name: Check the GitHub object
-      shell: bash
-      run: |
-        echo "${{ toJSON(github.event) }}"
-
     - name: Checkout the repo
       uses: actions/checkout@v2
 
@@ -42,19 +37,10 @@ jobs:
       run: |
         echo 'Results: ${{ toJSON(fromJSON(steps.armtest.outputs.results)) }}'
 
-    # - name: Deploy ARM templates
-    #   uses: Azure/arm-deploy@v1.0.1
-    #   with:
-    #     subscriptionId: ${{ secrets.SUBSCRIPTION_ID_DEV }}
-    #     resourceGroupName: ${{ secrets.RESOURCE_GROUP_NAME_DEV }}
-    #     deploymentName: 'dvrl.kr'
-    #     template: 'resources/azuredeploy.json'
-    #     parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_DEV }} cosmosDbName=${{ secrets.RESOURCE_COSMOSDB_DATABASE_NAME }} cosmosDbContainerName=${{ secrets.RESOURCE_COSMOSDB_CONTAINER_NAME }} cosmosDbPartitionKeyPath=${{ secrets.RESOURCE_COSMOSDB_PARTITION_KEY_PATH }} functionAppEnvironment=${{ secrets.RESOURCE_FUNCTIONAPP_ENVIRONMENT_DEV }}
-
-  functionapp_build_test_deploy_dev:
-    name: 'DEV: FunctionApp Build, Test & Deploy'
+  functionapp_build_test:
+    name: 'DEV: FunctionApp Build & Test'
     needs:
-    - arm_template_build_test_deploy_dev
+    - arm_template_build_test
 
     runs-on: ubuntu-latest
 
@@ -86,38 +72,3 @@ jobs:
       shell: bash
       run: |
         dotnet test . -c Release
-
-    # - name: Create FunctionApp artifact
-    #   shell: bash
-    #   run: |
-    #     dotnet publish ${{ env.FUNCTIONAPP_PATH }} -c Release -o published
-
-    # - name: Get FunctionApp publish profile
-    #   id: publishprofile
-    #   uses: aliencube/publish-profile-actions@v1.0.1
-    #   env:
-    #     AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
-    #   with:
-    #     resourceGroupName: ${{ secrets.RESOURCE_GROUP_NAME_DEV }}
-    #     appName: ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_DEV }}
-    #     isFunctionApp: true
-
-    # - name: Get FunctionApp publish profile
-    #   id: publishprofile
-    #   shell: bash
-    #   run: |
-    #     profile=$(az functionapp deployment list-publishing-profiles -g ${{ secrets.RESOURCE_GROUP_NAME_DEV }} -n ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_DEV }} --xml --output tsv)
-    #     echo "::set-output name=profile::$profile"
-
-    # - name: Deploy FunctionApp
-    #   uses: Azure/functions-action@v1
-    #   with:
-    #     app-name: ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_DEV }}
-    #     package: published
-    #     publish-profile: ${{ secrets.RESOURCE_FUNCTIONAPP_PUBLISH_PROFILE_DEV }}
-
-    # - name: Update FunctionApp settings
-    #   uses: Azure/appservice-settings@v1
-    #   with:
-    #     app-name: ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_DEV }}
-    #     app-settings-json: '${{ secrets.RESOURCE_FUNCTIONAPP_SETTINGS_DEV }}'

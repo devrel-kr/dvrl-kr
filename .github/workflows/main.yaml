@@ -2,6 +2,9 @@ name: Build, Test & Deploy
 
 on: [ push, pull_request ]
 
+env:
+  FUNCTIONAPP_PATH: 'src/DevRelKr.UrlShortener.FunctionApp'
+
 jobs:
   arm_template_build_test_deploy_dev:
     name: 'DEV: ARM Templates Build, Test & Deploy'
@@ -9,6 +12,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Check the GitHub object
+      shell: bash
+      run: |
+        echo "${{ toJSON(github) }}"
+
     - name: Checkout the repo
       uses: actions/checkout@v2
 
@@ -43,15 +51,54 @@ jobs:
         template: 'resources/azuredeploy.json'
         parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_DEV }} cosmosDbName=${{ secrets.RESOURCE_COSMOSDB_DATABASE_NAME }} cosmosDbContainerName=${{ secrets.RESOURCE_COSMOSDB_CONTAINER_NAME }} cosmosDbPartitionKeyPath=${{ secrets.RESOURCE_COSMOSDB_PARTITION_KEY_PATH }} functionAppEnvironment=${{ secrets.RESOURCE_FUNCTIONAPP_ENVIRONMENT_DEV }}
 
+  # arm_template_build_test_deploy_prod:
+  #   name: 'PROD: ARM Templates Build, Test & Deploy'
+  #   needs:
+  #   - arm_template_build_test_deploy_dev
+
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #   - name: Checkout the repo
+  #     uses: actions/checkout@v2
+
+  #   - name: Login to Azure
+  #     uses: Azure/login@v1.1
+  #     with:
+  #       creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+  #   - name: Run Bicep build
+  #     uses: aliencube/bicep-build-actions@v0.1
+  #     with:
+  #       files: '**/*.bicep'
+
+  #   - name: Run ARM TTK
+  #     uses: aliencube/arm-ttk-actions@v0.3
+  #     id: armtest
+  #     with:
+  #       path: ./resources
+
+  #   - name: Show ARM TTK test result
+  #     shell: bash
+  #     continue-on-error: true
+  #     run: |
+  #       echo 'Results: ${{ toJSON(fromJSON(steps.armtest.outputs.results)) }}'
+
+  #   - name: Deploy ARM templates
+  #     uses: Azure/arm-deploy@v1.0.1
+  #     with:
+  #       subscriptionId: ${{ secrets.SUBSCRIPTION_ID_PROD }}
+  #       resourceGroupName: ${{ secrets.RESOURCE_GROUP_NAME_PROD }}
+  #       deploymentName: 'dvrl.kr'
+  #       template: 'resources/azuredeploy.json'
+  #       parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_PROD }} cosmosDbName=${{ secrets.RESOURCE_COSMOSDB_DATABASE_NAME }} cosmosDbContainerName=${{ secrets.RESOURCE_COSMOSDB_CONTAINER_NAME }} cosmosDbPartitionKeyPath=${{ secrets.RESOURCE_COSMOSDB_PARTITION_KEY_PATH }} functionAppEnvironment=${{ secrets.RESOURCE_FUNCTIONAPP_ENVIRONMENT_PROD }}
+
   functionapp_build_test_deploy_dev:
     name: 'DEV: FunctionApp Build, Test & Deploy'
     needs:
     - arm_template_build_test_deploy_dev
 
     runs-on: ubuntu-latest
-
-    env:
-      FUNCTIONAPP_PATH: 'src/DevRelKr.UrlShortener.FunctionApp'
 
     steps:
     - name: Checkout the repo
@@ -109,10 +156,82 @@ jobs:
       with:
         app-name: ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_DEV }}
         package: published
-        publish-profile: ${{ secrets.RESOURCE_FUNCTIONAPP_PUBLISH_PROFILE }}
+        publish-profile: ${{ secrets.RESOURCE_FUNCTIONAPP_PUBLISH_PROFILE_DEV }}
 
     - name: Update FunctionApp settings
       uses: Azure/appservice-settings@v1
       with:
         app-name: ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_DEV }}
         app-settings-json: '${{ secrets.RESOURCE_FUNCTIONAPP_SETTINGS_DEV }}'
+
+  # functionapp_build_test_deploy_prod:
+  #   name: 'PROD: FunctionApp Build, Test & Deploy'
+  #   needs:
+  #   - arm_template_build_test_deploy_prod
+  #   - functionapp_build_test_deploy_dev
+
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #   - name: Checkout the repo
+  #     uses: actions/checkout@v2
+
+  #   - name: Login to Azure
+  #     uses: Azure/login@v1.1
+  #     with:
+  #       creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+  #   - name: Setup .NET Core SDK
+  #     uses: actions/setup-dotnet@v1
+  #     with:
+  #       dotnet-version: '3.1.x'
+
+  #   - name: Restore NuGet packages
+  #     shell: bash
+  #     run: |
+  #       dotnet restore .
+
+  #   - name: Build solution
+  #     shell: bash
+  #     run: |
+  #       dotnet build . -c Release
+
+  #   - name: Test solution
+  #     shell: bash
+  #     run: |
+  #       dotnet test . -c Release
+
+  #   - name: Create FunctionApp artifact
+  #     shell: bash
+  #     run: |
+  #       dotnet publish ${{ env.FUNCTIONAPP_PATH }} -c Release -o published
+
+  #   # - name: Get FunctionApp publish profile
+  #   #   id: publishprofile
+  #   #   uses: aliencube/publish-profile-actions@v1.0.1
+  #   #   env:
+  #   #     AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+  #   #   with:
+  #   #     resourceGroupName: ${{ secrets.RESOURCE_GROUP_NAME_PROD }}
+  #   #     appName: ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_PROD }}
+  #   #     isFunctionApp: true
+
+  #   # - name: Get FunctionApp publish profile
+  #   #   id: publishprofile
+  #   #   shell: bash
+  #   #   run: |
+  #   #     profile=$(az functionapp deployment list-publishing-profiles -g ${{ secrets.RESOURCE_GROUP_NAME_PROD }} -n ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_PROD }} --xml --output tsv)
+  #   #     echo "::set-output name=profile::$profile"
+
+  #   - name: Deploy FunctionApp
+  #     uses: Azure/functions-action@v1
+  #     with:
+  #       app-name: ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_PROD }}
+  #       package: published
+  #       publish-profile: ${{ secrets.RESOURCE_FUNCTIONAPP_PUBLISH_PROFILE_PROD }}
+
+  #   - name: Update FunctionApp settings
+  #     uses: Azure/appservice-settings@v1
+  #     with:
+  #       app-name: ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_PROD }}
+  #       app-settings-json: '${{ secrets.RESOURCE_FUNCTIONAPP_SETTINGS_PROD }}'

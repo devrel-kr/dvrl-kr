@@ -211,10 +211,6 @@ resource fncapp 'Microsoft.Web/sites@2019-08-01' = {
                     value: 'DefaultEndpointsProtocol=https;AccountName=${st.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(st.id, '2019-06-01').keys[0].value}'
                 }
                 {
-                    name: 'AzureWebJobsDashboard'
-                    value: 'DefaultEndpointsProtocol=https;AccountName=${st.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(st.id, '2019-06-01').keys[0].value}'
-                }
-                {
                     name: 'FUNCTIONS_EXTENSION_VERSION'
                     value: '~3'
                 }

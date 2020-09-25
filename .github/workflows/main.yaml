@@ -108,7 +108,7 @@ jobs:
       shell: bash
       run: |
         # profile=$(az functionapp deployment list-publishing-profiles -g ${{ secrets.RESOURCE_GROUP_NAME_DEV }} -n ${{ secrets.RESOURCE_GROUP_NAME_DEV }} --xml | sed -e 's|\"<|<|g' | sed -e 's|>\"|>|g' | sed -e 's|\\"|"|g' | sed -e 's|\\\\|\\|g')
-        profile=$(az functionapp deployment list-publishing-profiles -g ${{ secrets.RESOURCE_GROUP_NAME_DEV }} -n ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_DEV }} --xml)
+        profile=$(az functionapp deployment list-publishing-profiles -g ${{ secrets.RESOURCE_GROUP_NAME_DEV }} -n ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_DEV }} --xml --output tsv)
         echo "::set-output name=profile::$profile"
 
     - name: Deploy FunctionApp

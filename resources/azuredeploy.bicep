@@ -291,39 +291,39 @@ resource fncapp 'Microsoft.Web/sites@2020-06-01' = {
                     value: 'https://${st.name}.blob.${environment().suffixes.storage}/${storage.letsEncryptChallenge}'
                 }
                 {
-                    name: 'letsencrypt__Tenant'
+                    name: 'letsencrypt:Tenant'
                     value: '${subscription().tenantId}'
                 }
                 {
-                    name: 'letsencrypt__SubscriptionId'
+                    name: 'letsencrypt:SubscriptionId'
                     value: '${subscription().subscriptionId}'
                 }
                 {
-                    name: 'letsencrypt__ClientId'
+                    name: 'letsencrypt:ClientId'
                     value: servicePrincipal.clientId
                 }
                 {
-                    name: 'letsencrypt__ClientSecret'
+                    name: 'letsencrypt:ClientSecret'
                     value: servicePrincipal.clientSecret
                 }
                 {
-                    name: 'letsencrypt__ResourceGroupName'
+                    name: 'letsencrypt:ResourceGroupName'
                     value: '${resourceGroup().name}'
                 }
                 {
-                    name: 'letsencrypt__ServicePlanResourceGroupName'
+                    name: 'letsencrypt:ServicePlanResourceGroupName'
                     value: '${resourceGroup().name}'
                 }
                 {
-                    name: 'letsencrypt__UseIPBasedSSL'
+                    name: 'letsencrypt:UseIPBasedSSL'
                     value: false
                 }
                 {
-                    name: 'letsencrypt__AuthorizationChallengeBlobStorageAccount'
+                    name: 'letsencrypt:AuthorizationChallengeBlobStorageAccount'
                     value: 'DefaultEndpointsProtocol=https;AccountName=${st.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(st.id, '2019-06-01').keys[0].value}'
                 }
                 {
-                    name: 'letsencrypt__AuthorizationChallengeBlobStorageContainer'
+                    name: 'letsencrypt:AuthorizationChallengeBlobStorageContainer'
                     value: storage.letsEncryptChallenge
                 }
                 // dvrl.kr specific settings

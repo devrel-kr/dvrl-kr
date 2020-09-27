@@ -14,12 +14,6 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    env:
-      TENANT_ID: ''
-      SUBSCRIPTION_ID: ''
-      CLIENT_ID: ''
-      CLIENT_SECRET: ''
-
     steps:
     - name: Checkout the repo
       uses: actions/checkout@v2
@@ -27,20 +21,7 @@ jobs:
     - name: Login to Azure
       uses: Azure/login@v1.1
       with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-    - name: Convert Azure credentials
-      shell: bash
-      run: |
-        tenantId=$(echo "${{ secrets.AZURE_CREDENTIALS }}" | jq -r '.tenantId')
-        subscriptionId=$(echo "${{ secrets.AZURE_CREDENTIALS }}" | jq -r '.subscriptionId')
-        clientId=$(echo "${{ secrets.AZURE_CREDENTIALS }}" | jq -r '.clientId')
-        clientSecret=$(echo "${{ secrets.AZURE_CREDENTIALS }}" | jq -r '.clientSecret')
-
-        echo "::set-env name=TENANT_ID::'$tenantId'"
-        echo "::set-env name=SUBSCRIPTION_ID::'$subscriptionId'"
-        echo "::set-env name=CLIENT_ID::'$clientId'"
-        echo "::set-env name=CLIENT_SECRET::'$clientSecret'"
+        creds: ${{ secrets.AZURE_CREDENTIALS_DEV }}
 
     - name: Run Bicep build
       uses: aliencube/bicep-build-actions@v0.1
@@ -62,11 +43,11 @@ jobs:
     - name: Deploy ARM templates
       uses: Azure/arm-deploy@v1.0.1
       with:
-        subscriptionId: ${{ env.SUBSCRIPTION_ID }}
+        subscriptionId: ${{ secrets.SUBSCRIPTION_ID_DEV }}
         resourceGroupName: ${{ secrets.RESOURCE_GROUP_NAME_DEV }}
         deploymentName: 'dvrl.kr'
         template: 'resources/azuredeploy.json'
-        parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_DEV }} servicePrincipalClientId=${{ env.CLIENT_ID }} servicePrincipalClientSecret=${{ env.CLIENT_SECRET }} cosmosDbName=${{ secrets.RESOURCE_COSMOSDB_DATABASE_NAME }} cosmosDbContainerName=${{ secrets.RESOURCE_COSMOSDB_CONTAINER_NAME }} cosmosDbPartitionKeyPath=${{ secrets.RESOURCE_COSMOSDB_PARTITION_KEY_PATH }} functionAppEnvironment=${{ secrets.RESOURCE_FUNCTIONAPP_ENVIRONMENT_DEV }} functionAppCustomDomain=${{ secrets.RESOURCE_FUNCTIONAPP_CUSTOM_DOMAIN_DEV }}
+        parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_DEV }} servicePrincipalClientId=${{ secrets.AZURE_CLIENT_ID_DEV }} servicePrincipalClientSecret=${{ secrets.AZURE_CLIENT_SECRET_DEV }} cosmosDbName=${{ secrets.RESOURCE_COSMOSDB_DATABASE_NAME }} cosmosDbContainerName=${{ secrets.RESOURCE_COSMOSDB_CONTAINER_NAME }} cosmosDbPartitionKeyPath=${{ secrets.RESOURCE_COSMOSDB_PARTITION_KEY_PATH }} functionAppEnvironment=${{ secrets.RESOURCE_FUNCTIONAPP_ENVIRONMENT_DEV }} functionAppCustomDomain=${{ secrets.RESOURCE_FUNCTIONAPP_CUSTOM_DOMAIN_DEV }}
 
   functionapp_build_test_deploy_dev:
     name: 'DEV: FunctionApp Build, Test & Deploy'
@@ -82,7 +63,7 @@ jobs:
     - name: Login to Azure
       uses: Azure/login@v1.1
       with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+        creds: ${{ secrets.AZURE_CREDENTIALS_DEV }}
 
     - name: Setup .NET Core SDK
       uses: actions/setup-dotnet@v1
@@ -113,7 +94,7 @@ jobs:
     #   id: publishprofile
     #   uses: aliencube/publish-profile-actions@v1.0.1
     #   env:
-    #     AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+    #     AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS_DEV }}
     #   with:
     #     resourceGroupName: ${{ secrets.RESOURCE_GROUP_NAME_DEV }}
     #     appName: ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_DEV }}

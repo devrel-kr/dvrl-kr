@@ -28,6 +28,12 @@
     },
     "functionAppCustomDomain": {
       "value": "<CUSTOM_DOMAIN>"
+    },
+    "dvrlDefaultRedirectUrl": {
+      "value": "https://github.com/devrel-kr"
+    },
+    "dvrlGoogleAnalyticsCode": {
+      "value": "<GOOGLE_ANALYTICS_CODE>"
     }
   }
 }

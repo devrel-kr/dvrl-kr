@@ -76,6 +76,20 @@
     },
     "functionAppCustomDomain": {
       "type": "string"
+    },
+    "dvrlDefaultRedirectUrl": {
+      "type": "string"
+    },
+    "dvrlFilesToBeIgnored": {
+      "type": "string",
+      "defaultValue": "favicon.ico"
+    },
+    "dvrlGoogleAnalyticsCode": {
+      "type": "secureString"
+    },
+    "dvrlUrlShortenerLength": {
+      "type": "int",
+      "defaultValue": 10
     }
   },
   "functions": [],
@@ -123,6 +137,12 @@
     "servicePrincipal": {
       "clientId": "[parameters('servicePrincipalClientId')]",
       "clientSecret": "[parameters('servicePrincipalClientSecret')]"
+    },
+    "dvrlkr": {
+      "defaultRedirectUrl": "[parameters('dvrlDefaultRedirectUrl')]",
+      "filesToBeIgnored": "[parameters('dvrlFilesToBeIgnored')]",
+      "googleAnalyticsCode": "[parameters('dvrlGoogleAnalyticsCode')]",
+      "urlShortenerLength": "[parameters('dvrlUrlShortenerLength')]"
     }
   },
   "resources": [
@@ -312,6 +332,82 @@
             {
               "name": "CosmosDBConnection",
               "value": "[format('AccountEndpoint=https://{0}.documents.azure.com:443/;AccountKey={1};', variables('cosmosDb').name, listKeys(resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosDb').name), '2020-06-01-preview').primaryMasterKey)]"
+            },
+            {
+              "name": "AzureWebJobsDashboard",
+              "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', variables('storage').name, environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storage').name), '2019-06-01').keys[0].value)]"
+            },
+            {
+              "name": "AzureWebJobsStorageLetsEncryptChallengeUrl",
+              "value": "[format('https://{0}.blob.{1}/{2}', variables('storage').name, environment().suffixes.storage, variables('storage').letsEncryptChallenge)]"
+            },
+            {
+              "name": "letsencrypt__Tenant",
+              "value": "[format('{0}', subscription().tenantId)]"
+            },
+            {
+              "name": "letsencrypt__SubscriptionId",
+              "value": "[format('{0}', subscription().subscriptionId)]"
+            },
+            {
+              "name": "letsencrypt__ClientId",
+              "value": "[variables('servicePrincipal').clientId]"
+            },
+            {
+              "name": "letsencrypt__ClientSecret",
+              "value": "[variables('servicePrincipal').clientSecret]"
+            },
+            {
+              "name": "letsencrypt__ResourceGroupName",
+              "value": "[format('{0}', resourceGroup().name)]"
+            },
+            {
+              "name": "letsencrypt__ServicePlanResourceGroupName",
+              "value": "[format('{0}', resourceGroup().name)]"
+            },
+            {
+              "name": "letsencrypt__UseIPBasedSSL",
+              "value": false
+            },
+            {
+              "name": "letsencrypt__AuthorizationChallengeBlobStorageAccount",
+              "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', variables('storage').name, environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storage').name), '2019-06-01').keys[0].value)]"
+            },
+            {
+              "name": "letsencrypt__AuthorizationChallengeBlobStorageContainer",
+              "value": "[variables('storage').letsEncryptChallenge]"
+            },
+            {
+              "name": "DefaultRedirectUrl",
+              "value": "[variables('dvrlkr').defaultRedirectUrl]"
+            },
+            {
+              "name": "FilesToBeIgnored",
+              "value": "[variables('dvrlkr').filesToBeIgnored]"
+            },
+            {
+              "name": "GoogleAnalyticsCode",
+              "value": "[variables('dvrlkr').googleAnalyticsCode]"
+            },
+            {
+              "name": "ShortenUrl__Hostname",
+              "value": "[variables('functionApp').hostname]"
+            },
+            {
+              "name": "ShortenUrl__Length",
+              "value": "[variables('dvrlkr').urlShortenerLength]"
+            },
+            {
+              "name": "CosmosDb__DatabaseName",
+              "value": "[variables('cosmosDb').dbName]"
+            },
+            {
+              "name": "CosmosDb__ContainerName",
+              "value": "[variables('cosmosDb').containerName]"
+            },
+            {
+              "name": "CosmosDb__PartitionKeyPath",
+              "value": "[variables('cosmosDb').partitionKeyPath]"
             }
           ]
         }
@@ -337,32 +433,11 @@
       "apiVersion": "2020-06-01",
       "name": "[format('{0}/letsencrypt', variables('functionApp').name)]",
       "location": "[variables('functionApp').location]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Web/sites', variables('functionApp').name)]"
-      ]
-    },
-    {
-      "type": "Microsoft.Web/sites/config",
-      "apiVersion": "2020-06-01",
-      "name": "[format('{0}/appsettings', variables('functionApp').name)]",
-      "location": "[variables('functionApp').location]",
       "properties": {
-        "AzureWebJobsDashboard": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', variables('storage').name, environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storage').name), '2019-06-01').keys[0].value)]",
-        "AzureWebJobsStorageLetsEncryptChallengeUrl": "[format('https://{0}.blob.{1}/{2}', variables('storage').name, environment().suffixes.storage, variables('storage').letsEncryptChallenge)]",
-        "letsencrypt__Tenant": "[format('{0}', subscription().tenantId)]",
-        "letsencrypt__SubscriptionId": "[format('{0}', subscription().subscriptionId)]",
-        "letsencrypt__ClientId": "[variables('servicePrincipal').clientId]",
-        "letsencrypt__ClientSecret": "[variables('servicePrincipal').clientSecret]",
-        "letsencrypt__ResourceGroupName": "[format('{0}', resourceGroup().name)]",
-        "letsencrypt__ServicePlanResourceGroupName": "[format('{0}', resourceGroup().name)]",
-        "letsencrypt__UseIPBasedSSL": false,
-        "letsencrypt__AuthorizationChallengeBlobStorageAccount": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', variables('storage').name, environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storage').name), '2019-06-01').keys[0].value)]",
-        "letsencrypt__AuthorizationChallengeBlobStorageContainer": "letsencrypt-challenge"
+        "key1": "value1"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Web/sites', variables('functionApp').name)]",
-        "[resourceId('Microsoft.Web/sites/siteextensions', split(format('{0}/letsencrypt', variables('functionApp').name), '/')[0], split(format('{0}/letsencrypt', variables('functionApp').name), '/')[1])]",
-        "[resourceId('Microsoft.Storage/storageAccounts', variables('storage').name)]"
+        "[resourceId('Microsoft.Web/sites', variables('functionApp').name)]"
       ]
     }
   ],

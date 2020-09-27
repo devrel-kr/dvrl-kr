@@ -50,6 +50,14 @@ param functionAppEnvironment string {
 param functionAppTimezone string = 'Korea Standard Time'
 param functionAppCustomDomain string
 
+// dvrl.kr
+param dvrlDefaultRedirectUrl string
+param dvrlFilesToBeIgnored string = 'favicon.ico'
+param dvrlGoogleAnalyticsCode string {
+    secure: true
+}
+param dvrlUrlShortenerLength int = 10
+
 var metadata = {
     longName: '{0}-${name}-${env}-${locationCode}'
     shortName: '{0}${name}${env}${locationCode}'
@@ -203,6 +211,18 @@ var functionApp = {
     hostname: functionAppCustomDomain
 }
 
+var servicePrincipal = {
+    clientId: servicePrincipalClientId
+    clientSecret: servicePrincipalClientSecret
+}
+
+var dvrlkr = {
+    defaultRedirectUrl: dvrlDefaultRedirectUrl
+    filesToBeIgnored: dvrlFilesToBeIgnored
+    googleAnalyticsCode: dvrlGoogleAnalyticsCode
+    urlShortenerLength: dvrlUrlShortenerLength
+}
+
 resource fncapp 'Microsoft.Web/sites@2020-06-01' = {
     name: functionApp.name
     location: functionApp.location
@@ -261,6 +281,84 @@ resource fncapp 'Microsoft.Web/sites@2020-06-01' = {
                     name: 'CosmosDBConnection'
                     value: 'AccountEndpoint=https://${cosdba.name}.documents.azure.com:443/;AccountKey=${listKeys(cosdba.id, '2020-06-01-preview').primaryMasterKey};'
                 }
+                // Let's Encrypt related settings
+                {
+                    name: 'AzureWebJobsDashboard'
+                    value: 'DefaultEndpointsProtocol=https;AccountName=${st.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(st.id, '2019-06-01').keys[0].value}'
+                }
+                {
+                    name: 'AzureWebJobsStorageLetsEncryptChallengeUrl'
+                    value: 'https://${st.name}.blob.${environment().suffixes.storage}/${storage.letsEncryptChallenge}'
+                }
+                {
+                    name: 'letsencrypt__Tenant'
+                    value: '${subscription().tenantId}'
+                }
+                {
+                    name: 'letsencrypt__SubscriptionId'
+                    value: '${subscription().subscriptionId}'
+                }
+                {
+                    name: 'letsencrypt__ClientId'
+                    value: servicePrincipal.clientId
+                }
+                {
+                    name: 'letsencrypt__ClientSecret'
+                    value: servicePrincipal.clientSecret
+                }
+                {
+                    name: 'letsencrypt__ResourceGroupName'
+                    value: '${resourceGroup().name}'
+                }
+                {
+                    name: 'letsencrypt__ServicePlanResourceGroupName'
+                    value: '${resourceGroup().name}'
+                }
+                {
+                    name: 'letsencrypt__UseIPBasedSSL'
+                    value: false
+                }
+                {
+                    name: 'letsencrypt__AuthorizationChallengeBlobStorageAccount'
+                    value: 'DefaultEndpointsProtocol=https;AccountName=${st.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(st.id, '2019-06-01').keys[0].value}'
+                }
+                {
+                    name: 'letsencrypt__AuthorizationChallengeBlobStorageContainer'
+                    value: storage.letsEncryptChallenge
+                }
+                // dvrl.kr specific settings
+                {
+                    name: 'DefaultRedirectUrl'
+                    value: dvrlkr.defaultRedirectUrl
+                }
+                {
+                    name: 'FilesToBeIgnored'
+                    value: dvrlkr.filesToBeIgnored
+                }
+                {
+                    name: 'GoogleAnalyticsCode'
+                    value: dvrlkr.googleAnalyticsCode
+                }
+                {
+                    name: 'ShortenUrl__Hostname'
+                    value: functionApp.hostname
+                }
+                {
+                    name: 'ShortenUrl__Length'
+                    value: dvrlkr.urlShortenerLength
+                }
+                {
+                    name: 'CosmosDb__DatabaseName'
+                    value: cosmosDb.dbName
+                }
+                {
+                    name: 'CosmosDb__ContainerName'
+                    value: cosmosDb.containerName
+                }
+                {
+                    name: 'CosmosDb__PartitionKeyPath'
+                    value: cosmosDb.partitionKeyPath
+                }
             ]
         }
     }
@@ -274,30 +372,7 @@ resource fncappHostname 'Microsoft.Web/sites/hostNameBindings@2020-06-01' = {
 resource fncappLetsencrypt 'Microsoft.Web/sites/siteextensions@2020-06-01' = {
     name: '${fncapp.name}/letsencrypt'
     location: functionApp.location
-}
-
-var servicePrincipal = {
-    clientId: servicePrincipalClientId
-    clientSecret: servicePrincipalClientSecret
-}
-
-resource funcappLetsencryptSettings 'Microsoft.Web/sites/config@2020-06-01' = {
-    name: '${fncapp.name}/appsettings'
-    location: functionApp.location
-    dependsOn: [
-        fncappLetsencrypt
-    ]
     properties: {
-        AzureWebJobsDashboard: 'DefaultEndpointsProtocol=https;AccountName=${st.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(st.id, '2019-06-01').keys[0].value}'
-        AzureWebJobsStorageLetsEncryptChallengeUrl: 'https://${st.name}.blob.${environment().suffixes.storage}/${storage.letsEncryptChallenge}'
-        letsencrypt__Tenant: '${subscription().tenantId}'
-        letsencrypt__SubscriptionId: '${subscription().subscriptionId}'
-        letsencrypt__ClientId: servicePrincipal.clientId
-        letsencrypt__ClientSecret: servicePrincipal.clientSecret
-        letsencrypt__ResourceGroupName: '${resourceGroup().name}'
-        letsencrypt__ServicePlanResourceGroupName: '${resourceGroup().name}'
-        letsencrypt__UseIPBasedSSL: false
-        letsencrypt__AuthorizationChallengeBlobStorageAccount: 'DefaultEndpointsProtocol=https;AccountName=${st.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(st.id, '2019-06-01').keys[0].value}'
-        letsencrypt__AuthorizationChallengeBlobStorageContainer: 'letsencrypt-challenge'
+        key1: 'value1'
     }
 }

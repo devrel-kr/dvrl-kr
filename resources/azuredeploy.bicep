@@ -17,6 +17,14 @@ param location string = resourceGroup().location
 // Resource location code
 param locationCode string = 'krc'
 
+// Service Principal
+param servicePrincipalClientId string {
+    secure: true
+}
+param servicePrincipalClientSecret string {
+    secure: true
+}
+
 // Cosmos DB
 param cosmosDbDefaultConsistencyLevel string = 'Session'
 param cosmosDbPrimaryRegion string = 'Korea Central'
@@ -27,6 +35,7 @@ param cosmosDbPartitionKeyPath string
 
 // Storage CosmosAccount
 param storageAccountSku string = 'Standard_LRS'
+param storageContainerLetsEncryptChallenge string = 'letsencrypt-challenge'
 
 // Function App
 param functionAppWorkerRuntime string = 'dotnet'
@@ -39,6 +48,7 @@ param functionAppEnvironment string {
     default: 'Development'
 }
 param functionAppTimezone string = 'Korea Standard Time'
+param functionAppCustomDomain string
 
 var metadata = {
     longName: '{0}-${name}-${env}-${locationCode}'
@@ -128,6 +138,7 @@ var storage = {
     name: format(metadata.shortName, 'st')
     location: location
     sku: storageAccountSku
+    letsEncryptChallenge: storageContainerLetsEncryptChallenge
 }
 
 resource st 'Microsoft.Storage/storageAccounts@2019-06-01' = {
@@ -142,6 +153,14 @@ resource st 'Microsoft.Storage/storageAccounts@2019-06-01' = {
     }
 }
 
+resource stBlob 'Microsoft.Storage/storageAccounts/blobServices@2019-06-01' = {
+    name: '${st.name}/default'
+}
+
+resource stBlobLetsEncrypt 'Microsoft.Storage/storageAccounts/blobServices/containers@2019-06-01' = {
+    name: '${stBlob.name}/${storage.letsEncryptChallenge}'
+}
+
 var appInsights = {
     name: format(metadata.longName, 'appins')
     location: location
@@ -152,7 +171,6 @@ resource appins 'Microsoft.Insights/components@2020-02-02-preview' = {
     location: appInsights.location
     kind: 'web'
     properties: {
-        // ApplicationId: appInsights.name
         Application_Type: 'web'
         Request_Source: 'IbizaWebAppExtensionCreate'
     }
@@ -182,9 +200,10 @@ var functionApp = {
     environment: functionAppEnvironment
     runtime: functionAppWorkerRuntime
     timezone: functionAppTimezone
+    hostname: functionAppCustomDomain
 }
 
-resource fncapp 'Microsoft.Web/sites@2019-08-01' = {
+resource fncapp 'Microsoft.Web/sites@2020-06-01' = {
     name: functionApp.name
     location: functionApp.location
     kind: 'functionapp'
@@ -244,5 +263,41 @@ resource fncapp 'Microsoft.Web/sites@2019-08-01' = {
                 }
             ]
         }
+    }
+}
+
+resource fncappHostname 'Microsoft.Web/sites/hostNameBindings@2020-06-01' = {
+    name: '${fncapp.name}/${functionApp.hostname}'
+    location: functionApp.location
+}
+
+resource fncappLetsencrypt 'Microsoft.Web/sites/siteextensions@2020-06-01' = {
+    name: '${fncapp.name}/letsencrypt'
+    location: functionApp.location
+}
+
+var servicePrincipal = {
+    clientId: servicePrincipalClientId
+    clientSecret: servicePrincipalClientSecret
+}
+
+resource funcappLetsencryptSettings 'Microsoft.Web/sites/config@2020-06-01' = {
+    name: '${fncapp.name}/appsettings'
+    location: functionApp.location
+    dependsOn: [
+        fncappLetsencrypt
+    ]
+    properties: {
+        AzureWebJobsDashboard: 'DefaultEndpointsProtocol=https;AccountName=${st.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(st.id, '2019-06-01').keys[0].value}'
+        AzureWebJobsStorageLetsEncryptChallengeUrl: 'https://${st.name}.blob.${environment().suffixes.storage}/${storage.letsEncryptChallenge}'
+        letsencrypt__Tenant: '${subscription().tenantId}'
+        letsencrypt__SubscriptionId: '${subscription().subscriptionId}'
+        letsencrypt__ClientId: servicePrincipal.clientId
+        letsencrypt__ClientSecret: servicePrincipal.clientSecret
+        letsencrypt__ResourceGroupName: '${resourceGroup().name}'
+        letsencrypt__ServicePlanResourceGroupName: '${resourceGroup().name}'
+        letsencrypt__UseIPBasedSSL: false
+        letsencrypt__AuthorizationChallengeBlobStorageAccount: 'DefaultEndpointsProtocol=https;AccountName=${st.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(st.id, '2019-06-01').keys[0].value}'
+        letsencrypt__AuthorizationChallengeBlobStorageContainer: 'letsencrypt-challenge'
     }
 }

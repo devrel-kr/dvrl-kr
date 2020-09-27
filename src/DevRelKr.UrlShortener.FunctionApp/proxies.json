@@ -1,6 +1,12 @@
 {
   "$schema": "http://json.schemastore.org/proxies",
   "proxies": {
+    "LetsEncrypt": {
+      "matchCondition": {
+        "route": "/.well-known/acme-challenge/{challengeCode}"
+      },
+      "backendUri": "%AzureWebJobsStorageLetsEncryptChallengeUrl%/.well-known/acme-challenge/{challengeCode}"
+    },
     "Redirect": {
       "matchCondition": {
         "route": "/{shortUrl}"

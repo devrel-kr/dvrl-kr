@@ -22,6 +22,12 @@
       "type": "string",
       "defaultValue": "krc"
     },
+    "servicePrincipalClientId": {
+      "type": "secureString"
+    },
+    "servicePrincipalClientSecret": {
+      "type": "secureString"
+    },
     "cosmosDbDefaultConsistencyLevel": {
       "type": "string",
       "defaultValue": "Session"
@@ -47,6 +53,10 @@
       "type": "string",
       "defaultValue": "Standard_LRS"
     },
+    "storageContainerLetsEncryptChallenge": {
+      "type": "string",
+      "defaultValue": "letsencrypt-challenge"
+    },
     "functionAppWorkerRuntime": {
       "type": "string",
       "defaultValue": "dotnet"
@@ -63,6 +73,9 @@
     "functionAppTimezone": {
       "type": "string",
       "defaultValue": "Korea Standard Time"
+    },
+    "functionAppCustomDomain": {
+      "type": "string"
     }
   },
   "functions": [],
@@ -88,7 +101,8 @@
     "storage": {
       "name": "[format(variables('metadata').shortName, 'st')]",
       "location": "[parameters('location')]",
-      "sku": "[parameters('storageAccountSku')]"
+      "sku": "[parameters('storageAccountSku')]",
+      "letsEncryptChallenge": "[parameters('storageContainerLetsEncryptChallenge')]"
     },
     "appInsights": {
       "name": "[format(variables('metadata').longName, 'appins')]",
@@ -103,7 +117,12 @@
       "location": "[parameters('location')]",
       "environment": "[parameters('functionAppEnvironment')]",
       "runtime": "[parameters('functionAppWorkerRuntime')]",
-      "timezone": "[parameters('functionAppTimezone')]"
+      "timezone": "[parameters('functionAppTimezone')]",
+      "hostname": "[parameters('functionAppCustomDomain')]"
+    },
+    "servicePrincipal": {
+      "clientId": "[parameters('servicePrincipalClientId')]",
+      "clientSecret": "[parameters('servicePrincipalClientSecret')]"
     }
   },
   "resources": [
@@ -194,6 +213,22 @@
       }
     },
     {
+      "type": "Microsoft.Storage/storageAccounts/blobServices",
+      "apiVersion": "2019-06-01",
+      "name": "[format('{0}/default', variables('storage').name)]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storage').name)]"
+      ]
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+      "apiVersion": "2019-06-01",
+      "name": "[format('{0}/{1}', format('{0}/default', variables('storage').name), variables('storage').letsEncryptChallenge)]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts/blobServices', split(format('{0}/default', variables('storage').name), '/')[0], split(format('{0}/default', variables('storage').name), '/')[1])]"
+      ]
+    },
+    {
       "type": "Microsoft.Insights/components",
       "apiVersion": "2020-02-02-preview",
       "name": "[variables('appInsights').name]",
@@ -220,7 +255,7 @@
     },
     {
       "type": "Microsoft.Web/sites",
-      "apiVersion": "2019-08-01",
+      "apiVersion": "2020-06-01",
       "name": "[variables('functionApp').name]",
       "location": "[variables('functionApp').location]",
       "kind": "functionapp",
@@ -285,6 +320,48 @@
         "[resourceId('Microsoft.Insights/components', variables('appInsights').name)]",
         "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosDb').name)]",
         "[resourceId('Microsoft.Web/serverfarms', variables('servicePlan').name)]",
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storage').name)]"
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites/hostNameBindings",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}/{1}', variables('functionApp').name, variables('functionApp').hostname)]",
+      "location": "[variables('functionApp').location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', variables('functionApp').name)]"
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites/siteextensions",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}/letsencrypt', variables('functionApp').name)]",
+      "location": "[variables('functionApp').location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', variables('functionApp').name)]"
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites/config",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}/appsettings', variables('functionApp').name)]",
+      "location": "[variables('functionApp').location]",
+      "properties": {
+        "AzureWebJobsDashboard": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', variables('storage').name, environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storage').name), '2019-06-01').keys[0].value)]",
+        "AzureWebJobsStorageLetsEncryptChallengeUrl": "[format('https://{0}.blob.{1}/{2}', variables('storage').name, environment().suffixes.storage, variables('storage').letsEncryptChallenge)]",
+        "letsencrypt__Tenant": "[format('{0}', subscription().tenantId)]",
+        "letsencrypt__SubscriptionId": "[format('{0}', subscription().subscriptionId)]",
+        "letsencrypt__ClientId": "[variables('servicePrincipal').clientId]",
+        "letsencrypt__ClientSecret": "[variables('servicePrincipal').clientSecret]",
+        "letsencrypt__ResourceGroupName": "[format('{0}', resourceGroup().name)]",
+        "letsencrypt__ServicePlanResourceGroupName": "[format('{0}', resourceGroup().name)]",
+        "letsencrypt__UseIPBasedSSL": false,
+        "letsencrypt__AuthorizationChallengeBlobStorageAccount": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', variables('storage').name, environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storage').name), '2019-06-01').keys[0].value)]",
+        "letsencrypt__AuthorizationChallengeBlobStorageContainer": "letsencrypt-challenge"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', variables('functionApp').name)]",
+        "[resourceId('Microsoft.Web/sites/siteextensions', split(format('{0}/letsencrypt', variables('functionApp').name), '/')[0], split(format('{0}/letsencrypt', variables('functionApp').name), '/')[1])]",
         "[resourceId('Microsoft.Storage/storageAccounts', variables('storage').name)]"
       ]
     }

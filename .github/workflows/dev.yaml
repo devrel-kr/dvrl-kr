@@ -47,7 +47,7 @@ jobs:
         resourceGroupName: ${{ secrets.RESOURCE_GROUP_NAME_DEV }}
         deploymentName: 'dvrl.kr'
         template: 'resources/azuredeploy.json'
-        parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_DEV }} servicePrincipalClientId=${{ secrets.AZURE_CLIENT_ID_DEV }} servicePrincipalClientSecret=${{ secrets.AZURE_CLIENT_SECRET_DEV }} cosmosDbName=${{ secrets.RESOURCE_COSMOSDB_DATABASE_NAME }} cosmosDbContainerName=${{ secrets.RESOURCE_COSMOSDB_CONTAINER_NAME }} cosmosDbPartitionKeyPath=${{ secrets.RESOURCE_COSMOSDB_PARTITION_KEY_PATH }} functionAppEnvironment=${{ secrets.RESOURCE_FUNCTIONAPP_ENVIRONMENT_DEV }} functionAppCustomDomain=${{ secrets.RESOURCE_FUNCTIONAPP_CUSTOM_DOMAIN_DEV }} dvrlDefaultRedirectUrl=${{ secrets.DVRL_DEFAULT_REDIRECT_URL }} dvrlGoogleAnalyticsCode=${{ secrets.DVRL_GOOGLE_ANALYTICS_CODE_DEV }}
+        parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_DEV }} cosmosDbName=${{ secrets.RESOURCE_COSMOSDB_DATABASE_NAME }} cosmosDbContainerName=${{ secrets.RESOURCE_COSMOSDB_CONTAINER_NAME }} cosmosDbPartitionKeyPath=${{ secrets.RESOURCE_COSMOSDB_PARTITION_KEY_PATH }} functionAppEnvironment=${{ secrets.RESOURCE_FUNCTIONAPP_ENVIRONMENT_DEV }} functionAppCustomDomain=${{ secrets.RESOURCE_FUNCTIONAPP_CUSTOM_DOMAIN_DEV }} dvrlDefaultRedirectUrl=${{ secrets.DVRL_DEFAULT_REDIRECT_URL }} dvrlGoogleAnalyticsCode=${{ secrets.DVRL_GOOGLE_ANALYTICS_CODE_DEV }}
 
   functionapp_build_test_deploy_dev:
     name: 'DEV: FunctionApp Build, Test & Deploy'

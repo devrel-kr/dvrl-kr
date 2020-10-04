@@ -8,12 +8,6 @@
     "env": {
       "value": "dev"
     },
-    "servicePrincipalClientId": {
-      "value": "<CLIENT_ID>"
-    },
-    "servicePrincipalClientSecret": {
-      "value": "<CLIENT_SECRET>"
-    },
     "cosmosDbName": {
       "value": "<DATABASE_NAME>"
     },

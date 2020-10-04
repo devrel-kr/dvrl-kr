@@ -1,0 +1,263 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "name": {
+      "type": "string"
+    },
+    "env": {
+      "type": "string",
+      "defaultValue": "common",
+      "allowedValues": [
+        "common"
+      ]
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "locationCode": {
+      "type": "string",
+      "defaultValue": "krc"
+    },
+    "storageAccountSku": {
+      "type": "string",
+      "defaultValue": "Standard_LRS"
+    },
+    "functionAppWorkerRuntime": {
+      "type": "string",
+      "defaultValue": "dotnet"
+    },
+    "functionAppEnvironment": {
+      "type": "string",
+      "defaultValue": "Production",
+      "allowedValues": [
+        "Production"
+      ]
+    },
+    "functionAppTimezone": {
+      "type": "string",
+      "defaultValue": "Korea Standard Time"
+    },
+    "acmebotEmailAddress": {
+      "type": "string"
+    },
+    "acmebotEndpoint": {
+      "type": "string",
+      "defaultValue": "https://acme-v02.api.letsencrypt.org/"
+    },
+    "acmebotArtifactUrl": {
+      "type": "string",
+      "defaultValue": "https://shibayan.blob.core.windows.net/azure-keyvault-letsencrypt/v3/latest.zip"
+    },
+    "keyVaultSku": {
+      "type": "string",
+      "defaultValue": "Standard",
+      "allowedValues": [
+        "Standard",
+        "Premium"
+      ]
+    }
+  },
+  "functions": [],
+  "variables": {
+    "metadata": {
+      "longName": "[format('{{0}}-{0}-{1}-{2}', parameters('name'), parameters('env'), parameters('locationCode'))]",
+      "shortName": "[format('{{0}}{0}{1}{2}', parameters('name'), parameters('env'), parameters('locationCode'))]"
+    },
+    "storage": {
+      "name": "[format(variables('metadata').shortName, 'st')]",
+      "location": "[parameters('location')]",
+      "sku": "[parameters('storageAccountSku')]"
+    },
+    "appInsights": {
+      "name": "[format(variables('metadata').longName, 'appins')]",
+      "location": "[parameters('location')]"
+    },
+    "servicePlan": {
+      "name": "[format(variables('metadata').longName, 'csplan')]",
+      "location": "[parameters('location')]"
+    },
+    "functionApp": {
+      "name": "[format(variables('metadata').longName, 'fncapp')]",
+      "location": "[parameters('location')]",
+      "environment": "[parameters('functionAppEnvironment')]",
+      "runtime": "[parameters('functionAppWorkerRuntime')]",
+      "timezone": "[parameters('functionAppTimezone')]",
+      "acmebot": {
+        "email": "[parameters('acmebotEmailAddress')]",
+        "endpoint": "[parameters('acmebotEndpoint')]",
+        "artifact": "[parameters('acmebotArtifactUrl')]"
+      }
+    },
+    "keyVault": {
+      "name": "[format(variables('metadata').shortName, 'kv')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "[parameters('keyVaultSku')]",
+        "family": "A"
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2019-06-01",
+      "name": "[variables('storage').name]",
+      "location": "[variables('storage').location]",
+      "kind": "StorageV2",
+      "sku": {
+        "name": "[variables('storage').sku]"
+      },
+      "properties": {
+        "supportsHttpsTrafficOnly": true
+      }
+    },
+    {
+      "type": "Microsoft.Insights/components",
+      "apiVersion": "2020-02-02-preview",
+      "name": "[variables('appInsights').name]",
+      "location": "[variables('appInsights').location]",
+      "kind": "web",
+      "properties": {
+        "Application_Type": "web",
+        "Request_Source": "IbizaWebAppExtensionCreate"
+      }
+    },
+    {
+      "type": "Microsoft.Web/serverfarms",
+      "apiVersion": "2019-08-01",
+      "name": "[variables('servicePlan').name]",
+      "location": "[variables('servicePlan').location]",
+      "sku": {
+        "name": "Y1",
+        "tier": "Dynamic"
+      },
+      "properties": {
+        "name": "[variables('servicePlan').name]",
+        "computeMode": "Dynamic"
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2020-06-01",
+      "name": "[variables('functionApp').name]",
+      "location": "[variables('functionApp').location]",
+      "kind": "functionapp",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('servicePlan').name)]",
+        "httpsOnly": true,
+        "alwaysOn": true,
+        "siteConfig": {
+          "clientAffinityEnabled": false,
+          "appSettings": [
+            {
+              "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+              "value": "[format('{0}', reference(resourceId('Microsoft.Insights/components', variables('appInsights').name), '2020-02-02-preview', 'Full').properties.InstrumentationKey)]"
+            },
+            {
+              "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
+              "value": "[format('{0}', reference(resourceId('Microsoft.Insights/components', variables('appInsights').name), '2020-02-02-preview', 'Full').properties.connectionString)]"
+            },
+            {
+              "name": "AZURE_FUNCTIONS_ENVIRONMENT",
+              "value": "[variables('functionApp').environment]"
+            },
+            {
+              "name": "AzureWebJobsStorage",
+              "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', variables('storage').name, environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storage').name), '2019-06-01').keys[0].value)]"
+            },
+            {
+              "name": "FUNCTIONS_EXTENSION_VERSION",
+              "value": "~3"
+            },
+            {
+              "name": "FUNCTION_APP_EDIT_MODE",
+              "value": "readonly"
+            },
+            {
+              "name": "FUNCTIONS_WORKER_RUNTIME",
+              "value": "[variables('functionApp').runtime]"
+            },
+            {
+              "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
+              "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', variables('storage').name, environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storage').name), '2019-06-01').keys[0].value)]"
+            },
+            {
+              "name": "WEBSITE_CONTENTSHARE",
+              "value": "[variables('functionApp').name]"
+            },
+            {
+              "name": "WEBSITE_NODE_DEFAULT_VERSION",
+              "value": "~10"
+            },
+            {
+              "name": "WEBSITE_TIME_ZONE",
+              "value": "[variables('functionApp').timezone]"
+            },
+            {
+              "name": "WEBSITE_RUN_FROM_PACKAGE",
+              "value": "[variables('functionApp').acmebot.artifact]"
+            },
+            {
+              "name": "Acmebot:AzureDns:SubscriptionId",
+              "value": "[subscription().subscriptionId]"
+            },
+            {
+              "name": "Acmebot:Contacts",
+              "value": "[variables('functionApp').acmebot.email]"
+            },
+            {
+              "name": "Acmebot:Endpoint",
+              "value": "[variables('functionApp').acmebot.endpoint]"
+            },
+            {
+              "name": "Acmebot:VaultBaseUrl",
+              "value": "[format('https://{0}{1}', variables('keyVault').name, environment().suffixes.keyvaultDns)]"
+            },
+            {
+              "name": "Acmebot:Environment",
+              "value": "[environment().name]"
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Insights/components', variables('appInsights').name)]",
+        "[resourceId('Microsoft.Web/serverfarms', variables('servicePlan').name)]",
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storage').name)]"
+      ]
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults",
+      "apiVersion": "2019-09-01",
+      "name": "[variables('keyVault').name]",
+      "location": "[variables('keyVault').location]",
+      "properties": {
+        "sku": "[variables('keyVault').sku]",
+        "tenantId": "[subscription().tenantId]",
+        "accessPolicies": [
+          {
+            "tenantId": "[subscription().tenantId]",
+            "objectId": "[format('{0}', reference(resourceId('Microsoft.Web/sites', variables('functionApp').name), '2020-06-01', 'Full').identity.principalId)]",
+            "permissions": {
+              "certificates": [
+                "get",
+                "list",
+                "create",
+                "update"
+              ]
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', variables('functionApp').name)]"
+      ]
+    }
+  ],
+  "outputs": {}
+}

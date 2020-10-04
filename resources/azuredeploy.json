@@ -22,12 +22,6 @@
       "type": "string",
       "defaultValue": "krc"
     },
-    "servicePrincipalClientId": {
-      "type": "secureString"
-    },
-    "servicePrincipalClientSecret": {
-      "type": "secureString"
-    },
     "cosmosDbDefaultConsistencyLevel": {
       "type": "string",
       "defaultValue": "Session"
@@ -133,10 +127,6 @@
       "runtime": "[parameters('functionAppWorkerRuntime')]",
       "timezone": "[parameters('functionAppTimezone')]",
       "hostname": "[parameters('functionAppCustomDomain')]"
-    },
-    "servicePrincipal": {
-      "clientId": "[parameters('servicePrincipalClientId')]",
-      "clientSecret": "[parameters('servicePrincipalClientSecret')]"
     },
     "dvrlkr": {
       "defaultRedirectUrl": "[parameters('dvrlDefaultRedirectUrl')]",
@@ -287,11 +277,11 @@
           "appSettings": [
             {
               "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-              "value": "[format('{0}', reference(resourceId('Microsoft.Insights/components', variables('appInsights').name), '2018-05-01-preview', 'Full').properties.InstrumentationKey)]"
+              "value": "[format('{0}', reference(resourceId('Microsoft.Insights/components', variables('appInsights').name), '2020-02-02-preview', 'Full').properties.InstrumentationKey)]"
             },
             {
               "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
-              "value": "[format('{0}', reference(resourceId('Microsoft.Insights/components', variables('appInsights').name), '2018-05-01-preview', 'Full').properties.connectionString)]"
+              "value": "[format('{0}', reference(resourceId('Microsoft.Insights/components', variables('appInsights').name), '2020-02-02-preview', 'Full').properties.connectionString)]"
             },
             {
               "name": "AZURE_FUNCTIONS_ENVIRONMENT",
@@ -332,50 +322,6 @@
             {
               "name": "CosmosDBConnection",
               "value": "[format('AccountEndpoint=https://{0}.documents.azure.com:443/;AccountKey={1};', variables('cosmosDb').name, listKeys(resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosDb').name), '2020-06-01-preview').primaryMasterKey)]"
-            },
-            {
-              "name": "AzureWebJobsDashboard",
-              "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', variables('storage').name, environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storage').name), '2019-06-01').keys[0].value)]"
-            },
-            {
-              "name": "AzureWebJobsStorageLetsEncryptChallengeUrl",
-              "value": "[format('https://{0}.blob.{1}/{2}', variables('storage').name, environment().suffixes.storage, variables('storage').letsEncryptChallenge)]"
-            },
-            {
-              "name": "letsencrypt__Tenant",
-              "value": "[format('{0}', subscription().tenantId)]"
-            },
-            {
-              "name": "letsencrypt__SubscriptionId",
-              "value": "[format('{0}', subscription().subscriptionId)]"
-            },
-            {
-              "name": "letsencrypt__ClientId",
-              "value": "[variables('servicePrincipal').clientId]"
-            },
-            {
-              "name": "letsencrypt__ClientSecret",
-              "value": "[variables('servicePrincipal').clientSecret]"
-            },
-            {
-              "name": "letsencrypt__ResourceGroupName",
-              "value": "[format('{0}', resourceGroup().name)]"
-            },
-            {
-              "name": "letsencrypt__ServicePlanResourceGroupName",
-              "value": "[format('{0}', resourceGroup().name)]"
-            },
-            {
-              "name": "letsencrypt__UseIPBasedSSL",
-              "value": false
-            },
-            {
-              "name": "letsencrypt__AuthorizationChallengeBlobStorageAccount",
-              "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', variables('storage').name, environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storage').name), '2019-06-01').keys[0].value)]"
-            },
-            {
-              "name": "letsencrypt__AuthorizationChallengeBlobStorageContainer",
-              "value": "[variables('storage').letsEncryptChallenge]"
             },
             {
               "name": "DefaultRedirectUrl",

@@ -17,14 +17,6 @@ param location string = resourceGroup().location
 // Resource location code
 param locationCode string = 'krc'
 
-// Service Principal
-param servicePrincipalClientId string {
-    secure: true
-}
-param servicePrincipalClientSecret string {
-    secure: true
-}
-
 // Cosmos DB
 param cosmosDbDefaultConsistencyLevel string = 'Session'
 param cosmosDbPrimaryRegion string = 'Korea Central'
@@ -211,11 +203,6 @@ var functionApp = {
     hostname: functionAppCustomDomain
 }
 
-var servicePrincipal = {
-    clientId: servicePrincipalClientId
-    clientSecret: servicePrincipalClientSecret
-}
-
 var dvrlkr = {
     defaultRedirectUrl: dvrlDefaultRedirectUrl
     filesToBeIgnored: dvrlFilesToBeIgnored
@@ -235,11 +222,11 @@ resource fncapp 'Microsoft.Web/sites@2020-06-01' = {
             appSettings: [
                 {
                     name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
-                    value: '${reference(appins.id, '2018-05-01-preview', 'Full').properties.InstrumentationKey}'
+                    value: '${reference(appins.id, '2020-02-02-preview', 'Full').properties.InstrumentationKey}'
                 }
                 {
                     name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
-                    value: '${reference(appins.id, '2018-05-01-preview', 'Full').properties.connectionString}'
+                    value: '${reference(appins.id, '2020-02-02-preview', 'Full').properties.connectionString}'
                 }
                 {
                     name: 'AZURE_FUNCTIONS_ENVIRONMENT'
@@ -280,51 +267,6 @@ resource fncapp 'Microsoft.Web/sites@2020-06-01' = {
                 {
                     name: 'CosmosDBConnection'
                     value: 'AccountEndpoint=https://${cosdba.name}.documents.azure.com:443/;AccountKey=${listKeys(cosdba.id, '2020-06-01-preview').primaryMasterKey};'
-                }
-                // Let's Encrypt related settings
-                {
-                    name: 'AzureWebJobsDashboard'
-                    value: 'DefaultEndpointsProtocol=https;AccountName=${st.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(st.id, '2019-06-01').keys[0].value}'
-                }
-                {
-                    name: 'AzureWebJobsStorageLetsEncryptChallengeUrl'
-                    value: 'https://${st.name}.blob.${environment().suffixes.storage}/${storage.letsEncryptChallenge}'
-                }
-                {
-                    name: 'letsencrypt:Tenant'
-                    value: '${subscription().tenantId}'
-                }
-                {
-                    name: 'letsencrypt:SubscriptionId'
-                    value: '${subscription().subscriptionId}'
-                }
-                {
-                    name: 'letsencrypt:ClientId'
-                    value: servicePrincipal.clientId
-                }
-                {
-                    name: 'letsencrypt:ClientSecret'
-                    value: servicePrincipal.clientSecret
-                }
-                {
-                    name: 'letsencrypt:ResourceGroupName'
-                    value: '${resourceGroup().name}'
-                }
-                {
-                    name: 'letsencrypt:ServicePlanResourceGroupName'
-                    value: '${resourceGroup().name}'
-                }
-                {
-                    name: 'letsencrypt:UseIPBasedSSL'
-                    value: false
-                }
-                {
-                    name: 'letsencrypt:AuthorizationChallengeBlobStorageAccount'
-                    value: 'DefaultEndpointsProtocol=https;AccountName=${st.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(st.id, '2019-06-01').keys[0].value}'
-                }
-                {
-                    name: 'letsencrypt:AuthorizationChallengeBlobStorageContainer'
-                    value: storage.letsEncryptChallenge
                 }
                 // dvrl.kr specific settings
                 {

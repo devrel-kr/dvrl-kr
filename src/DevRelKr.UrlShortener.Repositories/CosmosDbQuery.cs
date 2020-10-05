@@ -35,7 +35,7 @@ namespace DevRelKr.UrlShortener.Repositories
             var container = await this._helper.GetContainerAsync().ConfigureAwait(false);
 
             var qb = new StringBuilder()
-                         .Append("SELECT * FROM dvrl d WHERE d.shortUrl = @shortUrl");
+                         .Append("SELECT * FROM dvrl d WHERE d.collection = 'Url' AND d.shortUrl = @shortUrl");
             var definition = new QueryDefinition(qb.ToString())
                                  .WithParameter("@shortUrl", shortUrl);
             var options = new QueryRequestOptions() { MaxItemCount = 1 };
@@ -80,7 +80,7 @@ namespace DevRelKr.UrlShortener.Repositories
             var container = await this._helper.GetContainerAsync().ConfigureAwait(false);
 
             var qb = new StringBuilder()
-                         .Append("SELECT * FROM dvrl d WHERE d.owner = @owner");
+                         .Append("SELECT * FROM dvrl d WHERE d.collection = 'Url' AND d.owner = @owner");
             var definition = new QueryDefinition(qb.ToString())
                                  .WithParameter("@owner", owner);
 
@@ -89,21 +89,37 @@ namespace DevRelKr.UrlShortener.Repositories
             {
                 while (iterator.HasMoreResults)
                 {
-                    // Implicit operation is not testable
-                    // foreach (var item in await iterator.ReadNextAsync().ConfigureAwait(false))
-                    // {
-                    //     collection.Items.Add(item);
-                    // }
+                    foreach (var item in await iterator.ReadNextAsync().ConfigureAwait(false))
+                    {
+                        collection.Items.Add(item);
+                    }
+                }
+            }
 
-                    var feed = await iterator.ReadNextAsync().ConfigureAwait(false);
+            return collection;
+        }
 
-                    // Implicit operation is not testable
-                    // foreach (var item in feed)
-                    // {
-                    //     collection.Items.Add(item);
-                    // }
+        /// <inheritdoc/>
+        public async Task<VisitItemEntityCollection> GetVisitItemEntityCollectionAsync(string shortUrl)
+        {
+            if (string.IsNullOrWhiteSpace(shortUrl))
+            {
+                throw new ArgumentNullException(nameof(shortUrl));
+            }
 
-                    foreach (var item in feed.Resource)
+            var container = await this._helper.GetContainerAsync().ConfigureAwait(false);
+
+            var qb = new StringBuilder()
+                         .Append("SELECT * FROM dvrl d WHERE d.collection = 'Visit' AND d.shortUrl = @shortUrl");
+            var definition = new QueryDefinition(qb.ToString())
+                                 .WithParameter("@shortUrl", shortUrl);
+
+            var collection = new VisitItemEntityCollection();
+            using (var iterator = container.GetItemQueryIterator<VisitItemEntity>(definition))
+            {
+                while (iterator.HasMoreResults)
+                {
+                    foreach (var item in await iterator.ReadNextAsync().ConfigureAwait(false))
                     {
                         collection.Items.Add(item);
                     }

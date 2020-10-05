@@ -1,8 +1,10 @@
 using System;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 using DevRelKr.UrlShortener.Domains;
+using DevRelKr.UrlShortener.Domains.Exceptions;
 using DevRelKr.UrlShortener.Models.Responses;
 using DevRelKr.UrlShortener.Tests.Utilities;
 
@@ -43,6 +45,50 @@ namespace DevRelKr.UrlShortener.FunctionApp.Tests
             action = () => new ShortenUrlHttpTrigger(settings.Object, null);
 
             action.Should().Throw<ArgumentNullException>();
+        }
+
+        [TestMethod]
+        public async Task Given_Request_When_ShortenUrl_Invoked_Then_It_Should_Return_ErrorResponse()
+        {
+            var settings = this._mocker.CreateAppSettingsInstance();
+
+            var url = new Mock<IUrl>();
+            url.Setup(p => p.GetRequestAsync(It.IsAny<HttpRequest>())).Throws<ArgumentNullException>();
+
+            var trigger = new ShortenUrlHttpTrigger(settings.Object, url.Object);
+
+            var req = new Mock<HttpRequest>();
+            req.SetupGet(p => p.IsHttps).Returns(true);
+
+            var log = new Mock<ILogger>();
+
+            var result = await trigger.ShortenUrl(req.Object, log.Object).ConfigureAwait(false);
+
+            result.Should().BeOfType<ObjectResult>();
+            (result as ObjectResult).StatusCode.Value.Should().Be((int)HttpStatusCode.InternalServerError);
+            (result as ObjectResult).Value.Should().BeOfType<ExceptionResponse>();
+        }
+
+        [TestMethod]
+        public async Task Given_Request_When_ShortenUrl_Invoked_Then_It_Should_Return_ConflictResponse()
+        {
+            var settings = this._mocker.CreateAppSettingsInstance();
+
+            var url = new Mock<IUrl>();
+            url.Setup(p => p.GetRequestAsync(It.IsAny<HttpRequest>())).ReturnsAsync(url.Object);
+            url.Setup(p => p.ValidateAsync()).Throws<UrlExistsException>();
+
+            var trigger = new ShortenUrlHttpTrigger(settings.Object, url.Object);
+
+            var req = new Mock<HttpRequest>();
+            req.SetupGet(p => p.IsHttps).Returns(true);
+
+            var log = new Mock<ILogger>();
+
+            var result = await trigger.ShortenUrl(req.Object, log.Object).ConfigureAwait(false);
+
+            result.Should().BeOfType<ConflictObjectResult>();
+            (result as ConflictObjectResult).Value.Should().BeOfType<ExceptionResponse>();
         }
 
         [DataTestMethod]

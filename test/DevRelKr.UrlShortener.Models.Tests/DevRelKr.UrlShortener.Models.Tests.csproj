@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\DevRelKr.UrlShortener.Models\DevRelKr.UrlShortener.Models.csproj" />
+    <ProjectReference Include="..\DevRelKr.UrlShortener.Tests.Fakes\DevRelKr.UrlShortener.Tests.Fakes.csproj" />
   </ItemGroup>
 
 </Project>

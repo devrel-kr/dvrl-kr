@@ -10,10 +10,11 @@ namespace DevRelKr.UrlShortener.Repositories
     public interface ICommand
     {
         /// <summary>
-        /// Adds or updates the <see cref="UrlItemEntity"/> object.
+        /// Adds or updates the <see cref="ItemEntity"/> object.
         /// </summary>
-        /// <param name="item"><see cref="UrlItemEntity"/> object.</param>
+        /// <typeparam name="T">Type of entity represented as <see cref="ItemEntity"/>.</typeparam>
+        /// <param name="item"><see cref="ItemEntity"/> object.</param>
         /// <returns>Returns the HTTP status code indicating whether the transaction is of success or failure.</returns>
-        Task<int> UpsertUrlItemEntityAsync(UrlItemEntity item);
+        Task<int> UpsertItemEntityAsync<T>(T item) where T : ItemEntity;
     }
 }

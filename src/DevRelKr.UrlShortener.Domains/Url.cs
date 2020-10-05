@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 using DevRelKr.UrlShortener.Domains.Exceptions;
 using DevRelKr.UrlShortener.Domains.Extensions;
+using DevRelKr.UrlShortener.Models.DataStores;
 using DevRelKr.UrlShortener.Models.Requests;
 using DevRelKr.UrlShortener.Models.Responses;
 using DevRelKr.UrlShortener.Services;
@@ -80,6 +82,9 @@ namespace DevRelKr.UrlShortener.Domains
         public ExpanderRequest ExpanderRequest { get; private set; }
 
         /// <inheritdoc/>
+        public Dictionary<string, object> ExpanderRequestHeaders { get; private set; } = new Dictionary<string, object>();
+
+        /// <inheritdoc/>
         public ExpanderResponse ExpanderResponse { get; private set; }
 
         /// <inheritdoc/>
@@ -111,8 +116,10 @@ namespace DevRelKr.UrlShortener.Domains
             }
 
             var request = await req.GetExpanderRequestAsync(shortUrl).ConfigureAwait(false);
+            var headers = req.Headers.ToDictionary(p => p.Key, p => p.Value.Count == 1 ? (object) p.Value.First() : p.Value.ToList());
 
             this.ExpanderRequest = request;
+            this.ExpanderRequestHeaders = headers;
 
             return this;
         }
@@ -213,6 +220,11 @@ namespace DevRelKr.UrlShortener.Domains
 
             this.ExpanderResponse = response;
 
+            if (response != null)
+            {
+                this.ExpanderResponse.RequestHeaders = this.ExpanderRequestHeaders;
+            }
+
             return this;
         }
 
@@ -272,7 +284,8 @@ namespace DevRelKr.UrlShortener.Domains
             {
                 this.ExpanderResponse.DateUpdated = dateUpdated;
 
-                await this._expander.UpsertAsync(this.ExpanderResponse).ConfigureAwait(false);
+                await this._expander.UpsertAsync<UrlItemEntity>(this.ExpanderResponse).ConfigureAwait(false);
+                await this._expander.UpsertAsync<VisitItemEntity>(this.ExpanderResponse).ConfigureAwait(false);
             }
 
             this.DateUpdated = dateUpdated;

@@ -24,6 +24,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\DevRelKr.UrlShortener.Repositories\DevRelKr.UrlShortener.Repositories.csproj" />
     <ProjectReference Include="..\DevRelKr.UrlShortener.Tests.Utilities\DevRelKr.UrlShortener.Tests.Utilities.csproj" />
+    <ProjectReference Include="..\DevRelKr.UrlShortener.Tests.Fakes\DevRelKr.UrlShortener.Tests.Fakes.csproj" />
   </ItemGroup>
 
 </Project>

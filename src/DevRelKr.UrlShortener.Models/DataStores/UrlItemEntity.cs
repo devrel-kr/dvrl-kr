@@ -10,14 +10,17 @@ namespace DevRelKr.UrlShortener.Models.DataStores
     /// <summary>
     /// This represents the item entity for URL.
     /// </summary>
-    public class UrlItemEntity
+    public class UrlItemEntity : ItemEntity
     {
+        private DateTimeOffset _dateUpdated;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="UrlItemEntity"/> class.
         /// </summary>
         public UrlItemEntity()
+            : base()
         {
-
+            this.Collection = PartitionType.Url;
         }
 
         /// <summary>
@@ -25,6 +28,7 @@ namespace DevRelKr.UrlShortener.Models.DataStores
         /// </summary>
         /// <param name="payload"><see cref="UrlResponse"/> object.</param>
         public UrlItemEntity(UrlResponse payload)
+            : this()
         {
             this.EntityId = payload.EntityId;
             this.ShortUrl = payload.ShortUrl;
@@ -37,12 +41,6 @@ namespace DevRelKr.UrlShortener.Models.DataStores
             this.DateUpdated = payload.DateUpdated;
             this.HitCount = payload.HitCount;
         }
-
-        /// <summary>
-        /// Gets or sets the entity ID.
-        /// </summary>
-        [JsonProperty("id")]
-        public virtual Guid EntityId { get; set; }
 
         /// <summary>
         /// Gets or sets the short URL.
@@ -84,35 +82,28 @@ namespace DevRelKr.UrlShortener.Models.DataStores
         public virtual List<string> CoOwners { get;  set; } = new List<string>();
 
         /// <summary>
-        /// Gets or sets the date/time when the shortened URL was generated.
-        /// </summary>
-        [JsonRequired]
-        [JsonProperty("dateGenerated")]
-        public virtual DateTimeOffset DateGenerated { get; set; }
-
-        /// <summary>
         /// Gets or sets the date/time when the shortened URL was updated.
         /// </summary>
         [JsonRequired]
         [JsonProperty("dateUpdated")]
-        public virtual DateTimeOffset DateUpdated { get; set; }
+        public virtual DateTimeOffset DateUpdated
+        {
+            get { return this._dateUpdated; }
+            set
+            {
+                if (value == DateTimeOffset.MinValue)
+                {
+                    throw new InvalidOperationException("DateUpdated: Value not allowed");
+                }
+
+                this._dateUpdated = value;
+            }
+        }
 
         /// <summary>
         /// Gets or sets the hit count of the URL.
         /// </summary>
         [JsonProperty("hitCount")]
         public virtual int HitCount { get; set; }
-
-        /// <summary>
-        /// Gets the partition key.
-        /// </summary>
-        [JsonIgnore]
-        public virtual string PartitionKey => this.Owner;
-
-        /// <summary>
-        /// Gets the partition key path.
-        /// </summary>
-        [JsonIgnore]
-        public virtual string PartitionKeyPath => "/owner";
     }
 }

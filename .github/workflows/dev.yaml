@@ -2,8 +2,8 @@ name: Build, Test & Deploy
 
 on:
   push:
-    branches-ignore:
-    - main
+    branches:
+    - dev
 
 env:
   FUNCTIONAPP_PATH: 'src/DevRelKr.UrlShortener.FunctionApp'

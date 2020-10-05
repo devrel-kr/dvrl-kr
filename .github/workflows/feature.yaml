@@ -1,9 +1,10 @@
-name: Build & Test
+name: Build, Test & Deploy
 
 on:
-  pull_request:
+  push:
     branches:
-    - dev
+    - feature/*
+    - hotfix/*
 
 env:
   FUNCTIONAPP_PATH: 'src/DevRelKr.UrlShortener.FunctionApp'
@@ -35,7 +36,7 @@ jobs:
       run: |
         echo 'Results: ${{ toJSON(fromJSON(steps.armtest.outputs.results)) }}'
 
-  functionapp_build_test:
+  functionapp_build_test_deploy_dev:
     name: 'DEV: FunctionApp Build & Test'
     needs:
     - arm_template_build_test

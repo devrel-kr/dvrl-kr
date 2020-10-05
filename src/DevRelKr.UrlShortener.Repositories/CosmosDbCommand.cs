@@ -21,7 +21,7 @@ namespace DevRelKr.UrlShortener.Repositories
         }
 
         /// <inheritdoc/>
-        public async Task<int> UpsertUrlItemEntityAsync(UrlItemEntity item)
+        public async Task<int> UpsertItemEntityAsync<T>(T item) where T : ItemEntity
         {
             if (item == null)
             {
@@ -30,7 +30,7 @@ namespace DevRelKr.UrlShortener.Repositories
 
             var container = await this._helper.GetContainerAsync().ConfigureAwait(false);
 
-            var result = await container.UpsertItemAsync<UrlItemEntity>(item, new PartitionKey(item.PartitionKey));
+            var result = await container.UpsertItemAsync<T>(item, new PartitionKey(item.PartitionKey));
 
             return (int) result.StatusCode;
         }

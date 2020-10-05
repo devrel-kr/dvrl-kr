@@ -105,14 +105,18 @@ namespace DevRelKr.UrlShortener.Services.Tests
 
             var service = new ExpanderService(settings.Object, query.Object, command.Object);
 
-            Func<Task> func = async () => await service.UpsertAsync(null).ConfigureAwait(false);
+            Func<Task> func = async () => await service.UpsertAsync<UrlItemEntity>(null).ConfigureAwait(false);
+
+            func.Should().Throw<ArgumentNullException>();
+
+            func = async () => await service.UpsertAsync<VisitItemEntity>(null).ConfigureAwait(false);
 
             func.Should().Throw<ArgumentNullException>();
         }
 
         [DataTestMethod]
         [DataRow(HttpStatusCode.OK)]
-        public async Task Given_ShortUrl_When_UpsertAsync_Invoked_Then_It_Should_Return_Result(HttpStatusCode statusCode)
+        public async Task Given_ShortUrl_When_UpsertAsync_With_UrlItemEntity_Invoked_Then_It_Should_Return_Result(HttpStatusCode statusCode)
         {
             var settings = this._mocker.CreateAppSettingsInstance();
 
@@ -120,13 +124,44 @@ namespace DevRelKr.UrlShortener.Services.Tests
             var query = new Mock<IQuery>();
 
             var command = new Mock<ICommand>();
-            command.Setup(p => p.UpsertUrlItemEntityAsync(It.IsAny<UrlItemEntity>())).ReturnsAsync((int) statusCode);
+            command.Setup(p => p.UpsertItemEntityAsync<UrlItemEntity>(It.IsAny<UrlItemEntity>())).ReturnsAsync((int) statusCode);
 
             var service = new ExpanderService(settings.Object, query.Object, command.Object);
 
-            var payload = new ExpanderResponse();
+            var payload = new ExpanderResponse()
+            {
+                EntityId = Guid.NewGuid(),
+                DateGenerated = DateTimeOffset.UtcNow,
+                DateUpdated = DateTimeOffset.UtcNow
+            };
 
-            var result = await service.UpsertAsync(payload).ConfigureAwait(false);
+            var result = await service.UpsertAsync<UrlItemEntity>(payload).ConfigureAwait(false);
+
+            result.Should().Be((int) statusCode);
+        }
+
+        [DataTestMethod]
+        [DataRow(HttpStatusCode.OK)]
+        public async Task Given_ShortUrl_When_UpsertAsync_With_VisitItemEntity_Invoked_Then_It_Should_Return_Result(HttpStatusCode statusCode)
+        {
+            var settings = this._mocker.CreateAppSettingsInstance();
+
+            var item = new VisitItemEntity();
+            var query = new Mock<IQuery>();
+
+            var command = new Mock<ICommand>();
+            command.Setup(p => p.UpsertItemEntityAsync<VisitItemEntity>(It.IsAny<VisitItemEntity>())).ReturnsAsync((int) statusCode);
+
+            var service = new ExpanderService(settings.Object, query.Object, command.Object);
+
+            var payload = new ExpanderResponse()
+            {
+                EntityId = Guid.NewGuid(),
+                DateGenerated = DateTimeOffset.UtcNow,
+                DateUpdated = DateTimeOffset.UtcNow
+            };
+
+            var result = await service.UpsertAsync<VisitItemEntity>(payload).ConfigureAwait(false);
 
             result.Should().Be((int) statusCode);
         }

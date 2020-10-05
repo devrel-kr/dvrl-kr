@@ -52,16 +52,16 @@ namespace DevRelKr.UrlShortener.Services
         }
 
         /// <inheritdoc/>
-        public async Task<int> UpsertAsync(ExpanderResponse payload)
+        public async Task<int> UpsertAsync<T>(ExpanderResponse payload) where T : ItemEntity
         {
             if (payload == null)
             {
                 throw new ArgumentNullException(nameof(payload));
             }
 
-            var item = new UrlItemEntity(payload);
+            var item = (T) Activator.CreateInstance(typeof(T), payload);
 
-            var result = await this._command.UpsertUrlItemEntityAsync(item).ConfigureAwait(false);
+            var result = await this._command.UpsertItemEntityAsync<T>(item).ConfigureAwait(false);
 
             return result;
         }

@@ -17,10 +17,17 @@ namespace DevRelKr.UrlShortener.Repositories
         Task<UrlItemEntity> GetUrlItemEntityAsync(string shortUrl);
 
         /// <summary>
-        /// Gets the <see cref="UrlItemEntityCollection"/> object.
+        /// Gets the <see cref="UrlItemEntityCollection"/> object filtered by owner.
         /// </summary>
         /// <param name="owner">Short URL owner value.</param>
         /// <returns>Returns the <see cref="Task{UrlItemEntityCollection}"/> object.</returns>
         Task<UrlItemEntityCollection> GetUrlItemEntityCollectionAsync(string owner);
+
+        /// <summary>
+        /// Gets the <see cref="VisitItemEntityCollection"/> object filtered by short URL.
+        /// </summary>
+        /// <param name="owner">Short URL owner value.</param>
+        /// <returns>Returns the <see cref="Task{VisitUrlItemEntityCollection}"/> object.</returns>
+        Task<VisitItemEntityCollection> GetVisitItemEntityCollectionAsync(string shortUrl);
     }
 }

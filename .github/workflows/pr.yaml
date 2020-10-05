@@ -10,7 +10,7 @@ env:
 
 jobs:
   arm_template_build_test:
-    name: 'DEV: ARM Templates Build & Test'
+    name: 'PR: ARM Templates Build & Test'
 
     runs-on: ubuntu-latest
 
@@ -36,7 +36,7 @@ jobs:
         echo 'Results: ${{ toJSON(fromJSON(steps.armtest.outputs.results)) }}'
 
   functionapp_build_test:
-    name: 'DEV: FunctionApp Build & Test'
+    name: 'PR: FunctionApp Build & Test'
     needs:
     - arm_template_build_test
 

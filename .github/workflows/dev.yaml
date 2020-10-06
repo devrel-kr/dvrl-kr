@@ -90,32 +90,27 @@ jobs:
       run: |
         dotnet publish ${{ env.FUNCTIONAPP_PATH }} -c Release -o published
 
-    # - name: Get FunctionApp publish profile
-    #   id: publishprofile
-    #   uses: aliencube/publish-profile-actions@v1.0.1
-    #   env:
-    #     AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS_DEV }}
-    #   with:
-    #     resourceGroupName: ${{ secrets.RESOURCE_GROUP_NAME_DEV }}
-    #     appName: ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_DEV }}
-    #     isFunctionApp: true
-
-    # - name: Get FunctionApp publish profile
-    #   id: publishprofile
-    #   shell: bash
-    #   run: |
-    #     profile=$(az functionapp deployment list-publishing-profiles -g ${{ secrets.RESOURCE_GROUP_NAME_DEV }} -n ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_DEV }} --xml --output tsv)
-    #     echo "::set-output name=profile::$profile"
+    - name: Get FunctionApp publish profile
+      id: publishprofile
+      uses: aliencube/publish-profile-actions@v1
+      env:
+        AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS_DEV }}
+      with:
+        resourceGroupName: ${{ secrets.RESOURCE_GROUP_NAME_DEV }}
+        appName: ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_DEV }}
 
     - name: Deploy FunctionApp
       uses: Azure/functions-action@v1
       with:
         app-name: ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_DEV }}
         package: published
-        publish-profile: ${{ secrets.RESOURCE_FUNCTIONAPP_PUBLISH_PROFILE_DEV }}
+        publish-profile: ${{ steps.publishprofile.outputs.profile }}
 
-    # - name: Update FunctionApp settings
-    #   uses: Azure/appservice-settings@v1
-    #   with:
-    #     app-name: ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_DEV }}
-    #     app-settings-json: '${{ secrets.RESOURCE_FUNCTIONAPP_SETTINGS_DEV }}'
+    - name: Reset FunctionApp publish profile
+      uses: aliencube/publish-profile-actions@v1
+      env:
+        AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS_DEV }}
+      with:
+        resourceGroupName: ${{ secrets.RESOURCE_GROUP_NAME_DEV }}
+        appName: ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_DEV }}
+        reset: true

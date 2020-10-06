@@ -87,3 +87,12 @@ jobs:
         app-name: ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_DEV }}
         package: published
         publish-profile: ${{ steps.publishprofile.outputs.profile }}
+
+    - name: Reset FunctionApp publish profile
+      uses: aliencube/publish-profile-actions@v1
+      env:
+        AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS_DEV }}
+      with:
+        resourceGroupName: ${{ secrets.RESOURCE_GROUP_NAME_DEV }}
+        appName: ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_DEV }}
+        reset: true

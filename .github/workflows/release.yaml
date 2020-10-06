@@ -132,12 +132,30 @@ jobs:
       run: |
         dotnet publish ${{ env.FUNCTIONAPP_PATH }} -c Release -o published
 
+    - name: Get FunctionApp publish profile
+      id: publishprofile
+      uses: aliencube/publish-profile-actions@v1
+      env:
+        AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS_DEV }}
+      with:
+        resourceGroupName: ${{ secrets.RESOURCE_GROUP_NAME_DEV }}
+        appName: ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_DEV }}
+
     - name: Deploy FunctionApp
       uses: Azure/functions-action@v1
       with:
         app-name: ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_DEV }}
         package: published
-        publish-profile: ${{ secrets.RESOURCE_FUNCTIONAPP_PUBLISH_PROFILE_DEV }}
+        publish-profile: ${{ steps.publishprofile.outputs.profile }}
+
+    - name: Reset FunctionApp publish profile
+      uses: aliencube/publish-profile-actions@v1
+      env:
+        AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS_DEV }}
+      with:
+        resourceGroupName: ${{ secrets.RESOURCE_GROUP_NAME_DEV }}
+        appName: ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_DEV }}
+        reset: true
 
   functionapp_build_test_deploy_prod:
     name: 'PROD: FunctionApp Build, Test & Deploy'
@@ -181,9 +199,27 @@ jobs:
       run: |
         dotnet publish ${{ env.FUNCTIONAPP_PATH }} -c Release -o published
 
+    - name: Get FunctionApp publish profile
+      id: publishprofile
+      uses: aliencube/publish-profile-actions@v1
+      env:
+        AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS_PROD }}
+      with:
+        resourceGroupName: ${{ secrets.RESOURCE_GROUP_NAME_PROD }}
+        appName: ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_PROD }}
+
     - name: Deploy FunctionApp
       uses: Azure/functions-action@v1
       with:
         app-name: ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_PROD }}
         package: published
-        publish-profile: ${{ secrets.RESOURCE_FUNCTIONAPP_PUBLISH_PROFILE_PROD }}
+        publish-profile: ${{ steps.publishprofile.outputs.profile }}
+
+    - name: Reset FunctionApp publish profile
+      uses: aliencube/publish-profile-actions@v1
+      env:
+        AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS_PROD }}
+      with:
+        resourceGroupName: ${{ secrets.RESOURCE_GROUP_NAME_PROD }}
+        appName: ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_PROD }}
+        reset: true

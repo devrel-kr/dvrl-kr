@@ -95,6 +95,11 @@ namespace DevRelKr.UrlShortener.Domains
         ExpanderRequest ExpanderRequest { get; }
 
         /// <summary>
+        /// Gets the <see cref="Dictionary{string, object}"/> instance as the expander request header values.
+        /// </summary>
+        Dictionary<string, object> ExpanderRequestHeaders { get; }
+
+        /// <summary>
         /// Gets the <see cref="Models.Responses.ExpanderResponse"/> instance.
         /// </summary>
         ExpanderResponse ExpanderResponse { get; }

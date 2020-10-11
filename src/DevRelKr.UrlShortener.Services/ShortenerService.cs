@@ -98,7 +98,7 @@ namespace DevRelKr.UrlShortener.Services
 
             var item = new UrlItemEntity(payload);
 
-            var result = await this._command.UpsertUrlItemEntityAsync(item).ConfigureAwait(false);
+            var result = await this._command.UpsertItemEntityAsync<UrlItemEntity>(item).ConfigureAwait(false);
 
             return result;
         }

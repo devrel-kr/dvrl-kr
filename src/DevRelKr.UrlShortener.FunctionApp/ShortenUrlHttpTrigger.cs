@@ -59,9 +59,13 @@ namespace DevRelKr.UrlShortener.FunctionApp
             }
             catch (UrlExistsException ex)
             {
-                var error = new { message = ex.Message, shortUrl = ex.ShortUrl };
+                var error = new ExceptionResponse()
+                {
+                    Message = ex.Message,
+                    ShortUrl = ex.ShortUrl
+                };
 
-                return new BadRequestObjectResult(error);
+                return new ConflictObjectResult(error);
             }
             catch (Exception ex)
             {

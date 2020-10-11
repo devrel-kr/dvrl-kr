@@ -153,14 +153,6 @@ resource st 'Microsoft.Storage/storageAccounts@2019-06-01' = {
     }
 }
 
-resource stBlob 'Microsoft.Storage/storageAccounts/blobServices@2019-06-01' = {
-    name: '${st.name}/default'
-}
-
-resource stBlobLetsEncrypt 'Microsoft.Storage/storageAccounts/blobServices/containers@2019-06-01' = {
-    name: '${stBlob.name}/${storage.letsEncryptChallenge}'
-}
-
 var appInsights = {
     name: format(metadata.longName, 'appins')
     location: location

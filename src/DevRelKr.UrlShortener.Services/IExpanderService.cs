@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 
+using DevRelKr.UrlShortener.Models.DataStores;
 using DevRelKr.UrlShortener.Models.Requests;
 using DevRelKr.UrlShortener.Models.Responses;
 
@@ -20,8 +21,9 @@ namespace DevRelKr.UrlShortener.Services
         /// <summary>
         /// Adds or updates the URL record.
         /// </summary>
+        /// <typeparam name="T">Type of entity represented as <see cref="ItemEntity"/>.</typeparam>
         /// <param name="payload"><see cref="ExpanderResponse"/> object.</param>
         /// <returns>Returns the HTTP status code of this transaction.</returns>
-        Task<int> UpsertAsync(ExpanderResponse payload);
+        Task<int> UpsertAsync<T>(ExpanderResponse payload) where T : ItemEntity;
     }
 }

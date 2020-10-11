@@ -1,7 +1,8 @@
-using System;
 using System.Collections.Generic;
 
 using DevRelKr.UrlShortener.Models.DataStores;
+
+using Newtonsoft.Json;
 
 namespace DevRelKr.UrlShortener.Models.Responses
 {
@@ -37,5 +38,11 @@ namespace DevRelKr.UrlShortener.Models.Responses
             this.DateUpdated = item.DateUpdated;
             this.HitCount = item.HitCount;
         }
+
+        /// <summary>
+        /// Gets or sets the request header values from the expander requests.
+        /// </summary>
+        [JsonIgnore]
+        public virtual Dictionary<string, object> RequestHeaders { get; set; } = new Dictionary<string, object>();
     }
 }

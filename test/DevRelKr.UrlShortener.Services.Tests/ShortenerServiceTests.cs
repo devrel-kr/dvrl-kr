@@ -202,11 +202,16 @@ namespace DevRelKr.UrlShortener.Services.Tests
             var query = new Mock<IQuery>();
 
             var command = new Mock<ICommand>();
-            command.Setup(p => p.UpsertUrlItemEntityAsync(It.IsAny<UrlItemEntity>())).ReturnsAsync((int) statusCode);
+            command.Setup(p => p.UpsertItemEntityAsync<UrlItemEntity>(It.IsAny<UrlItemEntity>())).ReturnsAsync((int) statusCode);
 
             var service = new ShortenerService(settings.Object, query.Object, command.Object);
 
-            var payload = new ShortenerResponse();
+            var payload = new ShortenerResponse()
+            {
+                EntityId = Guid.NewGuid(),
+                DateGenerated = DateTimeOffset.UtcNow,
+                DateUpdated = DateTimeOffset.UtcNow
+            };
 
             var result = await service.UpsertAsync(payload).ConfigureAwait(false);
 

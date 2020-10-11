@@ -267,6 +267,9 @@ namespace DevRelKr.UrlShortener.Domains.Tests
             var req = new Mock<HttpRequest>();
             req.SetupGet(p => p.Method).Returns(method);
 
+            var headers = new HeaderDictionary(new Dictionary<string, StringValues>());
+            req.SetupGet(p => p.Headers).Returns(headers);
+
             var result = await url.GetRequestAsync(req.Object, shortUrl)
                                   .ConfigureAwait(false);
 

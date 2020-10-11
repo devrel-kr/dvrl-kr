@@ -3,25 +3,21 @@ name: Build, Test & Deploy
 on:
   push:
     branches:
-    - dev
+    - feature/*
+    - hotfix/*
 
 env:
   FUNCTIONAPP_PATH: 'src/DevRelKr.UrlShortener.FunctionApp'
 
 jobs:
-  arm_template_build_test_deploy_dev:
-    name: 'DEV: ARM Templates Build, Test & Deploy'
+  arm_template_build_test:
+    name: 'WIP: ARM Templates Build & Test'
 
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout the repo
       uses: actions/checkout@v2
-
-    - name: Login to Azure
-      uses: Azure/login@v1.1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS_DEV }}
 
     - name: Run Bicep build
       uses: aliencube/bicep-build-actions@v0.1
@@ -40,30 +36,16 @@ jobs:
       run: |
         echo 'Results: ${{ toJSON(fromJSON(steps.armtest.outputs.results)) }}'
 
-    - name: Deploy ARM templates
-      uses: Azure/arm-deploy@v1.0.1
-      with:
-        subscriptionId: ${{ secrets.SUBSCRIPTION_ID_DEV }}
-        resourceGroupName: ${{ secrets.RESOURCE_GROUP_NAME_DEV }}
-        deploymentName: 'dvrl.kr'
-        template: 'resources/azuredeploy.json'
-        parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_DEV }} cosmosDbName=${{ secrets.RESOURCE_COSMOSDB_DATABASE_NAME }} cosmosDbContainerName=${{ secrets.RESOURCE_COSMOSDB_CONTAINER_NAME }} cosmosDbPartitionKeyPath=${{ secrets.RESOURCE_COSMOSDB_PARTITION_KEY_PATH }} functionAppEnvironment=${{ secrets.RESOURCE_FUNCTIONAPP_ENVIRONMENT_DEV }} functionAppCustomDomain=${{ secrets.RESOURCE_FUNCTIONAPP_CUSTOM_DOMAIN_DEV }} dvrlDefaultRedirectUrl=${{ secrets.DVRL_DEFAULT_REDIRECT_URL }} dvrlGoogleAnalyticsCode=${{ secrets.DVRL_GOOGLE_ANALYTICS_CODE_DEV }}
-
   functionapp_build_test_deploy_dev:
-    name: 'DEV: FunctionApp Build, Test & Deploy'
+    name: 'WIP: FunctionApp Build & Test'
     needs:
-    - arm_template_build_test_deploy_dev
+    - arm_template_build_test
 
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout the repo
       uses: actions/checkout@v2
-
-    - name: Login to Azure
-      uses: Azure/login@v1.1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS_DEV }}
 
     - name: Setup .NET Core SDK
       uses: actions/setup-dotnet@v1

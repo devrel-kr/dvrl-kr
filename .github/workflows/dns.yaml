@@ -34,7 +34,7 @@ jobs:
         Write-Output "::set-output name=updated::$updated"
 
     - name: Check the DNS update result
-      if: ${{ steps.arecord.outputs.updated }} == 'true'
+      if: steps.arecord.outputs.updated == 'true'
       shell: pwsh
       run: |
         echo "${{ steps.arecord.outputs.updated }}"

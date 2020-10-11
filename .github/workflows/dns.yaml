@@ -24,6 +24,8 @@ jobs:
       shell: pwsh
       run: |
         dir scripts
+        chmod +x scripts/*.ps1
+        dir scripts
 
     - name: Update A Record
       id: arecord
@@ -31,10 +33,7 @@ jobs:
       env:
         AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS_PROD }}
       run: |
-        # dir scripts
-        # echo $env:GITHUB_WORKSPACE
-
-        # chmod +x script/Update-AzDnsARecord.ps1
+        # chmod +x scripts/Update-AzDnsARecord.ps1
 
         $updated = scripts/Update-AzDnsARecord.ps1 -AppResourceGroupName ${{ secrets.RESOURCE_GROUP_NAME_PROD }} -AppName ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_PROD }} -ZoneResourceGroupName ${{ secrets.RESOURCE_GROUP_NAME_ZONE }} -ZoneName ${{ secrets.RESOURCE_NAME_ZONE }}
         Write-Output "::set-output name=updated::$updated"
@@ -43,4 +42,6 @@ jobs:
       if: ${{ steps.arecord.outputs.updated }} == 'true'
       shell: pwsh
       run: |
+        # chmod +x scripts/Update-AzSslCertificate.ps1
+
         scripts/Update-AzSslCertificate.ps1 -ApiEndpoint ${{ secrets.SSL_RENEW_ENDPOINT }} -DnsNames ${{ secrets.SSL_DNS_NAMES }}

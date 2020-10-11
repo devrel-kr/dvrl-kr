@@ -20,6 +20,11 @@ jobs:
     - name: Checkout the repo
       uses: actions/checkout@v2
 
+    - name: Check directory
+      shell: pwsh
+      run: |
+        dir
+
     - name: Update A Record
       id: arecord
       shell: pwsh

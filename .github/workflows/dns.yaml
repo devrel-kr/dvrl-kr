@@ -25,8 +25,8 @@ jobs:
     - name: Install Azure PowerShell
       shell: pwsh
       run: |
-        # Install-Module -Name Az -RequiredVersion ((Find-Module -Name Az)[0].Version) -AllowClobber -Scope CurrentUser -Force
-        (Find-Module -Name Az)[0] | Install-Module -AllowClobber -Scope CurrentUser -Force
+        Install-Module -Name Az -RequiredVersion ((Find-Module -Name Az)[0].Version) -AllowClobber -Scope CurrentUser -Force
+        # (Find-Module -Name Az)[0] | Install-Module -AllowClobber -Scope CurrentUser -Force
 
     # - name: Login to Azure
     #   uses: Azure/login@v1.1

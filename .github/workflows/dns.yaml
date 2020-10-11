@@ -3,9 +3,9 @@ name: Update DNS & SSL Certificate
 on:
   schedule:
   - cron: '0/30 * * * *'
-  push:
-    branches:
-    - feature/*
+  # push:
+  #   branches:
+  #   - feature/*
 
 jobs:
   update_dns_and_ssl_certificate:
@@ -31,16 +31,8 @@ jobs:
         $updated = scripts/Update-AzDnsARecord.ps1 -AppResourceGroupName ${{ secrets.RESOURCE_GROUP_NAME_PROD }} -AppName ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_PROD }} -ZoneResourceGroupName ${{ secrets.RESOURCE_GROUP_NAME_ZONE }} -ZoneName ${{ secrets.RESOURCE_NAME_ZONE }}
         Write-Output "::set-output name=updated::$updated"
 
-    - name: Check the DNS update result
-      if: steps.arecord.outputs.updated == 'false'
+    - name: Update SSL Certificate
+      if: steps.arecord.outputs.updated == 'true'
       shell: pwsh
       run: |
-        echo "${{ steps.arecord.outputs.updated }}"
-
-    # - name: Update SSL Certificate
-    #   if: steps.arecord.outputs.updated == 'true'
-    #   shell: pwsh
-    #   run: |
-    #     # chmod +x scripts/Update-AzSslCertificate.ps1
-
-    #     scripts/Update-AzSslCertificate.ps1 -ApiEndpoint ${{ secrets.SSL_RENEW_ENDPOINT }} -DnsNames ${{ secrets.SSL_DNS_NAMES }}
+        scripts/Update-AzSslCertificate.ps1 -ApiEndpoint ${{ secrets.SSL_RENEW_ENDPOINT }} -DnsNames ${{ secrets.SSL_DNS_NAMES }}

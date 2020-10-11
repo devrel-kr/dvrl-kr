@@ -23,11 +23,11 @@ jobs:
       env:
         AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS_PROD }}
       run: |
-        $updated = ${{ GITHUB_WORKSPACE }}/scripts/Update-AzDnsARecord.ps1 -AppResourceGroupName ${{ secrets.RESOURCE_GROUP_NAME_PROD }} -AppName ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_PROD }} -ZoneResourceGroupName ${{ secrets.RESOURCE_GROUP_NAME_ZONE }} -ZoneName ${{ secrets.RESOURCE_NAME_ZONE }}
+        $updated = $env:GITHUB_WORKSPACE/scripts/Update-AzDnsARecord.ps1 -AppResourceGroupName ${{ secrets.RESOURCE_GROUP_NAME_PROD }} -AppName ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_PROD }} -ZoneResourceGroupName ${{ secrets.RESOURCE_GROUP_NAME_ZONE }} -ZoneName ${{ secrets.RESOURCE_NAME_ZONE }}
         Write-Output "::set-output name=updated::$updated"
 
     - name: Update SSL Certificate
       if: ${{ steps.arecord.outputs.updated }} == 'true'
       shell: pwsh
       run: |
-        ${{ GITHUB_WORKSPACE }}/scripts/Update-AzSslCertificate.ps1 -ApiEndpoint ${{ secrets.SSL_RENEW_ENDPOINT }} -DnsNames ${{ secrets.SSL_DNS_NAMES }}
+        $env:GITHUB_WORKSPACE/scripts/Update-AzSslCertificate.ps1 -ApiEndpoint ${{ secrets.SSL_RENEW_ENDPOINT }} -DnsNames ${{ secrets.SSL_DNS_NAMES }}

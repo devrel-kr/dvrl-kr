@@ -20,10 +20,10 @@ jobs:
     - name: Checkout the repo
       uses: actions/checkout@v2
 
-    - name: Check directory
+    - name: Install Azure PowerShell
       shell: pwsh
       run: |
-        dir scripts
+        Install-Module -Name Az -RequiredVersion 4.7.0 -AllowClobber -Scope CurrentUser -Force
 
     - name: Update A Record
       id: arecord

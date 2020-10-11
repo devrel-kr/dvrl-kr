@@ -5,6 +5,6 @@ Param(
 
 # Issue new SSL certificate
 $body = @{ DnsNames = $DnsNames }
-Invoke-RestMethod -Method Post -Uri $ApiEndpoint -ContentType "application/json" -Body ($body | ConvertTo-Json)
+$issued = Invoke-RestMethod -Method Post -Uri $ApiEndpoint -ContentType "application/json" -Body ($body | ConvertTo-Json)
 
 Write-Output "New SSL certificate has been issued to $($DnsNames -join ', ')"

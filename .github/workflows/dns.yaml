@@ -2,7 +2,7 @@ name: Update DNS & SSL Certificate
 
 on:
   schedule:
-  - cron: '0/5 * * * *'
+  - cron: '0/30 * * * *'
 
 env:
   FUNCTIONAPP_PATH: 'src/DevRelKr.UrlShortener.FunctionApp'

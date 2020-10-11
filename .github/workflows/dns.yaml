@@ -46,6 +46,12 @@ jobs:
     #     $updated = scripts/Update-AzDnsARecord.ps1 -AppResourceGroupName ${{ secrets.RESOURCE_GROUP_NAME_PROD }} -AppName ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_PROD }} -ZoneResourceGroupName ${{ secrets.RESOURCE_GROUP_NAME_ZONE }} -ZoneName ${{ secrets.RESOURCE_NAME_ZONE }}
     #     Write-Output "::set-output name=updated::$updated"
 
+    - name: Check the result
+      if: steps.arecord.outputs.updated == 'false'
+      shell: pwsh
+      run: |
+        echo "${{ steps.arecord.outputs.updated }}"
+
     - name: Update SSL Certificate
       if: steps.arecord.outputs.updated == 'true'
       shell: pwsh

@@ -17,15 +17,16 @@ jobs:
     - name: Checkout the repo
       uses: actions/checkout@v2
 
-    - name: Get the latest version of Azure PowerShell module
-      shell: pwsh
-      run: |
-        (Find-Module -Name Az)[0].Version
+    # - name: Get the latest version of Azure PowerShell module
+    #   shell: pwsh
+    #   run: |
+    #     (Find-Module -Name Az)[0].Version
 
     - name: Install Azure PowerShell
       shell: pwsh
       run: |
-        Install-Module -Name Az -RequiredVersion 4.7.0 -AllowClobber -Scope CurrentUser -Force
+        # Install-Module -Name Az -RequiredVersion ((Find-Module -Name Az)[0].Version) -AllowClobber -Scope CurrentUser -Force
+        (Find-Module -Name Az)[0] | Install-Module -AllowClobber -Scope CurrentUser -Force
 
     # - name: Login to Azure
     #   uses: Azure/login@v1.1

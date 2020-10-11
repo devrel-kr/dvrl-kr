@@ -2,16 +2,19 @@ Param(
     [string] [Parameter(Mandatory=$true)] $AppResourceGroupName,
     [string] [Parameter(Mandatory=$true)] $AppName,
     [string] [Parameter(Mandatory=$true)] $ZoneResourceGroupName,
-    [string] [Parameter(Mandatory=$true)] $ZoneName
+    [string] [Parameter(Mandatory=$true)] $ZoneName,
+    [bool] [Parameter(Mandatory=$false)] $UseLogin = $false
 )
 
-$clientId = ($env:AZURE_CREDENTIALS | ConvertFrom-Json).clientId
-$clientSecret = ($env:AZURE_CREDENTIALS | ConvertFrom-Json).clientSecret | ConvertTo-SecureString -AsPlainText -Force
-$tenantId = ($env:AZURE_CREDENTIALS | ConvertFrom-Json).tenantId
+if ($UseLogin -eq $true) {
+    $clientId = ($env:AZURE_CREDENTIALS | ConvertFrom-Json).clientId
+    $clientSecret = ($env:AZURE_CREDENTIALS | ConvertFrom-Json).clientSecret | ConvertTo-SecureString -AsPlainText -Force
+    $tenantId = ($env:AZURE_CREDENTIALS | ConvertFrom-Json).tenantId
 
-$credentials = New-Object System.Management.Automation.PSCredential($clientId, $clientSecret)
+    $credentials = New-Object System.Management.Automation.PSCredential($clientId, $clientSecret)
 
-$connected = Connect-AzAccount -ServicePrincipal -Credential $credentials -Tenant $tenantId
+    $connected = Connect-AzAccount -ServicePrincipal -Credential $credentials -Tenant $tenantId
+}
 
 # Add/Update A Record
 $app = Get-AzResource -ResourceType Microsoft.Web/sites -ResourceGroupName $AppResourceGroupName -ResourceName $AppName

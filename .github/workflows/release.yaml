@@ -223,3 +223,34 @@ jobs:
         resourceGroupName: ${{ secrets.RESOURCE_GROUP_NAME_PROD }}
         appName: ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_PROD }}
         reset: true
+
+  update_dns_and_ssl_certificate:
+    name: 'PROD: Update DNS and SSL Certificate'
+    needs:
+    - functionapp_build_test_deploy_prod
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout the repo
+      uses: actions/checkout@v2
+
+    - name: Install Azure PowerShell
+      shell: pwsh
+      run: |
+        Install-Module -Name Az -RequiredVersion ((Find-Module -Name Az)[0].Version) -AllowClobber -Scope CurrentUser -Force
+
+    - name: Update A record
+      id: arecord
+      shell: pwsh
+      env:
+        AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS_PROD }}
+      run: |
+        $updated = scripts/Update-AzDnsARecord.ps1 -AppResourceGroupName ${{ secrets.RESOURCE_GROUP_NAME_PROD }} -AppName ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_PROD }} -ZoneResourceGroupName ${{ secrets.RESOURCE_GROUP_NAME_ZONE }} -ZoneName ${{ secrets.RESOURCE_NAME_ZONE }} -UseLogin $true
+        Write-Output "::set-output name=updated::$updated"
+
+    - name: Update SSL Certificate
+      if: steps.arecord.outputs.updated == 'true'
+      shell: pwsh
+      run: |
+        scripts/Update-AzSslCertificate.ps1 -ApiEndpoint ${{ secrets.SSL_RENEW_ENDPOINT }} -DnsNames ${{ secrets.SSL_DNS_NAMES }}

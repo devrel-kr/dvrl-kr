@@ -17,40 +17,45 @@ jobs:
     - name: Checkout the repo
       uses: actions/checkout@v2
 
-    # - name: Install Azure PowerShell
-    #   shell: pwsh
-    #   run: |
-    #     Install-Module -Name Az -RequiredVersion 4.7.0 -AllowClobber -Scope CurrentUser -Force
+    - name: Get the latest version of Azure PowerShell module
+      shell: pwsh
+      run: |
+        (Find-Module -Name Az)[0].Version
 
-    - name: Login to Azure
-      uses: Azure/login@v1.1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS_DEV }}
-        enable-AzPSSession: true
+    - name: Install Azure PowerShell
+      shell: pwsh
+      run: |
+        Install-Module -Name Az -RequiredVersion 4.7.0 -AllowClobber -Scope CurrentUser -Force
 
-    - name: Update A record
-      id: arecord
-      uses: azure/powershell@v1
-      with:
-        azPSVersion: latest
-        inlineScript: |
-          $updated = scripts/Update-AzDnsARecord.ps1 -AppResourceGroupName ${{ secrets.RESOURCE_GROUP_NAME_PROD }} -AppName ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_PROD }} -ZoneResourceGroupName ${{ secrets.RESOURCE_GROUP_NAME_ZONE }} -ZoneName ${{ secrets.RESOURCE_NAME_ZONE }}
-          Write-Output "::set-output name=updated::$updated"
+    # - name: Login to Azure
+    #   uses: Azure/login@v1.1
+    #   with:
+    #     creds: ${{ secrets.AZURE_CREDENTIALS_DEV }}
+    #     enable-AzPSSession: true
 
     # - name: Update A record
     #   id: arecord
-    #   shell: pwsh
-    #   env:
-    #     AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS_PROD }}
-    #   run: |
-    #     $updated = scripts/Update-AzDnsARecord.ps1 -AppResourceGroupName ${{ secrets.RESOURCE_GROUP_NAME_PROD }} -AppName ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_PROD }} -ZoneResourceGroupName ${{ secrets.RESOURCE_GROUP_NAME_ZONE }} -ZoneName ${{ secrets.RESOURCE_NAME_ZONE }}
-    #     Write-Output "::set-output name=updated::$updated"
+    #   uses: azure/powershell@v1
+    #   with:
+    #     azPSVersion: latest
+    #     inlineScript: |
+    #       $updated = scripts/Update-AzDnsARecord.ps1 -AppResourceGroupName ${{ secrets.RESOURCE_GROUP_NAME_PROD }} -AppName ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_PROD }} -ZoneResourceGroupName ${{ secrets.RESOURCE_GROUP_NAME_ZONE }} -ZoneName ${{ secrets.RESOURCE_NAME_ZONE }}
+    #       Write-Output "::set-output name=updated::$updated"
 
-    - name: Check the result
-      if: steps.arecord.outputs.updated == 'false'
+    - name: Update A record
+      id: arecord
       shell: pwsh
+      env:
+        AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS_PROD }}
       run: |
-        echo "${{ steps.arecord.outputs.updated }}"
+        $updated = scripts/Update-AzDnsARecord.ps1 -AppResourceGroupName ${{ secrets.RESOURCE_GROUP_NAME_PROD }} -AppName ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_PROD }} -ZoneResourceGroupName ${{ secrets.RESOURCE_GROUP_NAME_ZONE }} -ZoneName ${{ secrets.RESOURCE_NAME_ZONE }} -UseLogin $true
+        Write-Output "::set-output name=updated::$updated"
+
+    # - name: Check the result
+    #   if: steps.arecord.outputs.updated == 'false'
+    #   shell: pwsh
+    #   run: |
+    #     echo "${{ steps.arecord.outputs.updated }}"
 
     - name: Update SSL Certificate
       if: steps.arecord.outputs.updated == 'true'

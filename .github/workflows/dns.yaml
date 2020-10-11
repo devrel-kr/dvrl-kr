@@ -23,7 +23,7 @@ jobs:
     - name: Check directory
       shell: pwsh
       run: |
-        dir
+        dir scripts
 
     - name: Update A Record
       id: arecord

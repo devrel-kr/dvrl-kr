@@ -32,7 +32,7 @@ namespace DevRelKr.UrlShortener.Models.DataStores
             {
                 if (value == Guid.Empty)
                 {
-                    throw new InvalidOperationException("GUID: Value not allowed");
+                    throw new InvalidOperationException("EntityId: Value not allowed");
                 }
 
                 this._entityId = value;

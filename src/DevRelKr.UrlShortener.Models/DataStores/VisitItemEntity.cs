@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 using DevRelKr.UrlShortener.Models.Responses;
@@ -11,6 +12,8 @@ namespace DevRelKr.UrlShortener.Models.DataStores
     /// </summary>
     public class VisitItemEntity : ItemEntity
     {
+        private Guid _urlId;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="VisitItemEntity"/> class.
         /// </summary>
@@ -31,7 +34,27 @@ namespace DevRelKr.UrlShortener.Models.DataStores
             this.ShortUrl = payload.ShortUrl;
             this.DateGenerated = payload.DateGenerated;
 
+            this.UrlId = (payload as ExpanderResponse).UrlId;
             this.RequestHeaders = (payload as ExpanderResponse).RequestHeaders;
+        }
+
+        /// <summary>
+        /// Gets or sets the EntityId of the <see cref="UrlItemEntity"/> object.
+        /// </summary>
+        [JsonRequired]
+        [JsonProperty("urlId")]
+        public virtual Guid UrlId
+        {
+            get { return this._urlId; }
+            set
+            {
+                if (value == Guid.Empty)
+                {
+                    throw new InvalidOperationException("UrlId: Value not allowed");
+                }
+
+                this._urlId = value;
+            }
         }
 
         /// <summary>

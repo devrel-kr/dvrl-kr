@@ -20,6 +20,11 @@ namespace DevRelKr.UrlShortener.Domains
         Guid EntityId { get; }
 
         /// <summary>
+        /// Gets the URL ID.
+        /// </summary>
+        Guid UrlId { get; }
+
+        /// <summary>
         /// Gets the original URL.
         /// </summary>
         Uri Original { get; }
@@ -157,7 +162,8 @@ namespace DevRelKr.UrlShortener.Domains
         /// </summary>
         /// <typeparam name="T">Type of the response.</typeparam>
         /// <param name="now"><see cref="DateTimeOffset"/> value.</param>
+        /// <param name="entityId"><see cref="Guid?"/> value as the ID.</param>
         /// <returns>Returns the <see cref="Task{IUrl}"/> instance.</returns>
-        Task<IUrl> UpdateRecordAsync<T>(DateTimeOffset now) where T : UrlResponse;
+        Task<IUrl> UpdateRecordAsync<T>(DateTimeOffset now, Guid? entityId = null) where T : UrlResponse;
     }
 }

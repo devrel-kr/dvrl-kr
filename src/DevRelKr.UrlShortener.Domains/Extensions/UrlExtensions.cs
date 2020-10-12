@@ -79,12 +79,13 @@ namespace DevRelKr.UrlShortener.Domains.Extensions
         /// <typeparam name="T">Type of the response.</typeparam>
         /// <param name="value"><see cref="Task{IUrl}"/> instance.</param>
         /// <param name="now"><see cref="DateTimeOffset"/> value.</param>
+        /// <param name="entityId"><see cref="Guid?"/> value as the ID.</param>
         /// <returns>Returns the <see cref="Task{IUrl}"/> instance.</returns>
-        public static async Task<IUrl> UpdateRecordAsync<T>(this Task<IUrl> value, DateTimeOffset now) where T : UrlResponse
+        public static async Task<IUrl> UpdateRecordAsync<T>(this Task<IUrl> value, DateTimeOffset now, Guid? entityId = null) where T : UrlResponse
         {
             var instance = await value.ConfigureAwait(false);
 
-            return await instance.UpdateRecordAsync<T>(now).ConfigureAwait(false);
+            return await instance.UpdateRecordAsync<T>(now, entityId).ConfigureAwait(false);
         }
     }
 }

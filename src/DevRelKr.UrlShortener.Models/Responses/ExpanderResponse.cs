@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 using DevRelKr.UrlShortener.Models.DataStores;
@@ -28,6 +29,7 @@ namespace DevRelKr.UrlShortener.Models.Responses
             : base()
         {
             this.EntityId = item.EntityId;
+            this.UrlId = item.EntityId;
             this.Original = item.OriginalUrl;
             this.ShortUrl = item.ShortUrl;
             this.Title = item.Title;
@@ -38,6 +40,12 @@ namespace DevRelKr.UrlShortener.Models.Responses
             this.DateUpdated = item.DateUpdated;
             this.HitCount = item.HitCount;
         }
+
+        /// <summary>
+        /// Gets or sets the EntityId of the <see cref="UrlItemEntity"/> object.
+        /// </summary>
+        [JsonIgnore]
+        public virtual Guid UrlId { get; set; }
 
         /// <summary>
         /// Gets or sets the request header values from the expander requests.

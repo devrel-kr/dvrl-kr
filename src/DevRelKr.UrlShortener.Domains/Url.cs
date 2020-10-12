@@ -37,6 +37,9 @@ namespace DevRelKr.UrlShortener.Domains
         public Guid EntityId { get; private set; }
 
         /// <inheritdoc/>
+        public Guid UrlId { get; private set; }
+
+        /// <inheritdoc/>
         public Uri Original { get; private set; }
 
         /// <inheritdoc/>
@@ -207,6 +210,7 @@ namespace DevRelKr.UrlShortener.Domains
             if (response != null)
             {
                 this.Shortened = response.Shortened;
+                this.UrlId = response.UrlId;
 
                 this.EntityId = response.EntityId;
                 this.Original = response.Original;
@@ -270,7 +274,7 @@ namespace DevRelKr.UrlShortener.Domains
         }
 
         /// <inheritdoc/>
-        public async Task<IUrl> UpdateRecordAsync<T>(DateTimeOffset now) where T : UrlResponse
+        public async Task<IUrl> UpdateRecordAsync<T>(DateTimeOffset now, Guid? entityId = null) where T : UrlResponse
         {
             var dateUpdated = now;
 
@@ -285,6 +289,9 @@ namespace DevRelKr.UrlShortener.Domains
                 this.ExpanderResponse.DateUpdated = dateUpdated;
 
                 await this._expander.UpsertAsync<UrlItemEntity>(this.ExpanderResponse).ConfigureAwait(false);
+
+                this.ExpanderResponse.EntityId = entityId.Value;
+
                 await this._expander.UpsertAsync<VisitItemEntity>(this.ExpanderResponse).ConfigureAwait(false);
             }
 

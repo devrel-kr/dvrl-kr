@@ -61,6 +61,7 @@ namespace DevRelKr.UrlShortener.FunctionApp
             log.LogInformation($"{requestId}: {(req.IsHttps ? "https" : "http")}://{req.Host.Value}/{shortUrl} was hit");
 
             var utcNow = DateTimeOffset.UtcNow;
+            var entityId = Guid.NewGuid();
 
             try
             {
@@ -68,7 +69,7 @@ namespace DevRelKr.UrlShortener.FunctionApp
                           .GetRequestAsync(req, shortUrl)
                           .ExpandAsync()
                           .AddHitCountAsync<ExpanderResponse>()
-                          .UpdateRecordAsync<ExpanderResponse>(utcNow)
+                          .UpdateRecordAsync<ExpanderResponse>(utcNow, entityId)
                           .ConfigureAwait(false);
             }
             catch (Exception ex)

@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 
 using DevRelKr.UrlShortener.Models.DataStores;
 
@@ -30,6 +31,16 @@ namespace DevRelKr.UrlShortener.Models.Tests.DataStores
             Action action = () => entity.DateUpdated = DateTimeOffset.MinValue;
 
             action.Should().Throw<InvalidOperationException>();
+        }
+
+        [TestMethod]
+        public void Given_DateUpdated_When_Decorator_Captured_Then_It_Should_Have_PropertyOrderOf_MaxValue()
+        {
+            var entity = new UrlItemEntity();
+            var pi = typeof(UrlItemEntity).GetProperty("DateUpdated", BindingFlags.Public | BindingFlags.Instance);
+            var attribute = pi.GetCustomAttribute<JsonPropertyAttribute>(inherit: false);
+
+            attribute.Order.Should().Be(int.MaxValue);
         }
 
         [DataTestMethod]

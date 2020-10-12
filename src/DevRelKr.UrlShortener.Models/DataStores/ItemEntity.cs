@@ -24,7 +24,7 @@ namespace DevRelKr.UrlShortener.Models.DataStores
         /// Gets or sets the entity ID.
         /// </summary>
         [JsonRequired]
-        [JsonProperty("id")]
+        [JsonProperty("id", Order = int.MinValue)]
         public virtual Guid EntityId
         {
             get { return this._entityId; }
@@ -43,7 +43,7 @@ namespace DevRelKr.UrlShortener.Models.DataStores
         /// Gets or sets the collection as a partition.
         /// </summary>
         [JsonRequired]
-        [JsonProperty("collection")]
+        [JsonProperty("collection", Order = int.MinValue)]
         public virtual PartitionType Collection
         {
             get { return this._collection; }
@@ -62,7 +62,7 @@ namespace DevRelKr.UrlShortener.Models.DataStores
         /// Gets or sets the date/time when the shortened URL was generated.
         /// </summary>
         [JsonRequired]
-        [JsonProperty("dateGenerated")]
+        [JsonProperty("dateGenerated", Order = int.MaxValue)]
         public virtual DateTimeOffset DateGenerated
         {
             get { return this._dateGenerated; }

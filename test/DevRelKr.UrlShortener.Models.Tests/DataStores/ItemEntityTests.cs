@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 
 using DevRelKr.UrlShortener.Tests.Fakes;
 
@@ -41,6 +42,36 @@ namespace DevRelKr.UrlShortener.Models.Tests.DataStores
             Action action = () => entity.DateGenerated = DateTimeOffset.MinValue;
 
             action.Should().Throw<InvalidOperationException>();
+        }
+
+        [TestMethod]
+        public void Given_EntityId_When_Decorator_Captured_Then_It_Should_Have_PropertyOrderOf_MinValue()
+        {
+            var entity = new FakeItemEntity();
+            var pi = typeof(FakeItemEntity).GetProperty("EntityId", BindingFlags.Public | BindingFlags.Instance);
+            var attribute = pi.GetCustomAttribute<JsonPropertyAttribute>(inherit: false);
+
+            attribute.Order.Should().Be(int.MinValue);
+        }
+
+        [TestMethod]
+        public void Given_Collection_When_Decorator_Captured_Then_It_Should_Have_PropertyOrderOf_MinValue()
+        {
+            var entity = new FakeItemEntity();
+            var pi = typeof(FakeItemEntity).GetProperty("Collection", BindingFlags.Public | BindingFlags.Instance);
+            var attribute = pi.GetCustomAttribute<JsonPropertyAttribute>(inherit: false);
+
+            attribute.Order.Should().Be(int.MinValue);
+        }
+
+        [TestMethod]
+        public void Given_DateGenerated_When_Decorator_Captured_Then_It_Should_Have_PropertyOrderOf_MaxValue()
+        {
+            var entity = new FakeItemEntity();
+            var pi = typeof(FakeItemEntity).GetProperty("DateGenerated", BindingFlags.Public | BindingFlags.Instance);
+            var attribute = pi.GetCustomAttribute<JsonPropertyAttribute>(inherit: false);
+
+            attribute.Order.Should().Be(int.MaxValue);
         }
 
         [DataTestMethod]

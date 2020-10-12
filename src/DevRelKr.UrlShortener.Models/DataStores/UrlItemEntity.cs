@@ -85,7 +85,7 @@ namespace DevRelKr.UrlShortener.Models.DataStores
         /// Gets or sets the date/time when the shortened URL was updated.
         /// </summary>
         [JsonRequired]
-        [JsonProperty("dateUpdated")]
+        [JsonProperty("dateUpdated", Order = int.MaxValue)]
         public virtual DateTimeOffset DateUpdated
         {
             get { return this._dateUpdated; }

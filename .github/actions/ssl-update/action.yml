@@ -1,6 +1,6 @@
-name: Azure DNS Update for Azure App Service
+name: Update SSL Certificate for Azure App Service
 author: DevRel Korea
-description: Update A record on Azure DNS for Azure App Service instance
+description: Update Let's Encrypt issued SSL Certificate to Azure App Service instance
 
 branding:
   icon: shield

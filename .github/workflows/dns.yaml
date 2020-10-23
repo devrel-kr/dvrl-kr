@@ -14,18 +14,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout the repo
-      uses: actions/checkout@v2
+    # - name: Checkout the repo
+    #   uses: actions/checkout@v2
 
     # - name: Get the latest version of Azure PowerShell module
     #   shell: pwsh
     #   run: |
     #     (Find-Module -Name Az)[0].Version
 
-    - name: Install Azure PowerShell
-      shell: pwsh
-      run: |
-        Install-Module -Name Az -RequiredVersion ((Find-Module -Name Az)[0].Version) -AllowClobber -Scope CurrentUser -Force
+    # - name: Install Azure PowerShell
+    #   shell: pwsh
+    #   run: |
+    #     Install-Module -Name Az -RequiredVersion ((Find-Module -Name Az)[0].Version) -AllowClobber -Scope CurrentUser -Force
 
     # - name: Login to Azure
     #   uses: Azure/login@v1.1
@@ -42,14 +42,25 @@ jobs:
     #       $updated = scripts/Update-AzDnsARecord.ps1 -AppResourceGroupName ${{ secrets.RESOURCE_GROUP_NAME_PROD }} -AppName ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_PROD }} -ZoneResourceGroupName ${{ secrets.RESOURCE_GROUP_NAME_ZONE }} -ZoneName ${{ secrets.RESOURCE_NAME_ZONE }}
     #       Write-Output "::set-output name=updated::$updated"
 
+    # - name: Update A record
+    #   id: arecord
+    #   shell: pwsh
+    #   env:
+    #     AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS_PROD }}
+    #   run: |
+    #     $updated = scripts/Update-AzDnsARecord.ps1 -AppResourceGroupName ${{ secrets.RESOURCE_GROUP_NAME_PROD }} -AppName ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_PROD }} -ZoneResourceGroupName ${{ secrets.RESOURCE_GROUP_NAME_ZONE }} -ZoneName ${{ secrets.RESOURCE_NAME_ZONE }} -UseLogin $true
+    #     Write-Output "::set-output name=updated::$updated"
+
     - name: Update A record
       id: arecord
-      shell: pwsh
+      uses: ./github/actions/dns-update
       env:
         AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS_PROD }}
-      run: |
-        $updated = scripts/Update-AzDnsARecord.ps1 -AppResourceGroupName ${{ secrets.RESOURCE_GROUP_NAME_PROD }} -AppName ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_PROD }} -ZoneResourceGroupName ${{ secrets.RESOURCE_GROUP_NAME_ZONE }} -ZoneName ${{ secrets.RESOURCE_NAME_ZONE }} -UseLogin $true
-        Write-Output "::set-output name=updated::$updated"
+      with:
+        appServiceResourceGroup: ${{ secrets.RESOURCE_GROUP_NAME_PROD }}
+        appName: ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_PROD }}
+        dnsZoneResourceGroup: ${{ secrets.RESOURCE_GROUP_NAME_ZONE }}
+        dnsZoneName: ${{ secrets.RESOURCE_NAME_ZONE }}
 
     # - name: Check the result
     #   if: steps.arecord.outputs.updated == 'false'
@@ -59,6 +70,7 @@ jobs:
 
     - name: Update SSL Certificate
       if: steps.arecord.outputs.updated == 'true'
-      shell: pwsh
-      run: |
-        scripts/Update-AzSslCertificate.ps1 -ApiEndpoint ${{ secrets.SSL_RENEW_ENDPOINT }} -DnsNames ${{ secrets.SSL_DNS_NAMES }}
+      uses: ./github/actions/ssl-update
+      with:
+        apiEndpoint: ${{ secrets.SSL_RENEW_ENDPOINT }}
+        hostNames: ${{ secrets.SSL_DNS_NAMES }}

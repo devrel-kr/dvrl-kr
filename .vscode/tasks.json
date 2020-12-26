@@ -64,7 +64,20 @@
 			"command": "host start --verbose",
 			"isBackground": true,
 			"problemMatcher": "$func-watch"
-		}
+		},
+    {
+      "label": "watch",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+          "watch",
+          "run",
+          "${workspaceFolder}/src/DevRelKr.UrlShortener.WebApp.csproj",
+          "/property:GenerateFullPaths=true",
+          "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    }
     // {
     //   "label": "build",
     //   "command": "dotnet",

@@ -13,4 +13,8 @@
     <PackageReference Include="System.Net.Http.Json" Version="5.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\DevRelKr.UrlShortener.Models\DevRelKr.UrlShortener.Models.csproj" />
+  </ItemGroup>
+
 </Project>

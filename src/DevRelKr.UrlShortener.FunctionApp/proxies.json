@@ -8,7 +8,7 @@
       "responseOverrides": {
         "response.statusCode": "301",
         "response.statusReason": "Moved Permanently",
-        "response.headers.location": "/-/{shortUrl}?{request.querystring}"
+        "response.headers.location": "/-/{shortUrl}"
       }
     },
     "Root": {

@@ -31,7 +31,7 @@ param functionAppTimezone string = 'Korea Standard Time'
 // ACMEbot
 param acmebotEmailAddress string
 param acmebotEndpoint string = 'https://acme-v02.api.letsencrypt.org/'
-param acmebotArtifactUrl string = 'https://shibayan.blob.core.windows.net/azure-keyvault-letsencrypt/v3/latest.zip'
+param acmebotArtifactUrl string = 'https://shibayan.blob.${environment().suffixes.storage}/azure-keyvault-letsencrypt/v3/latest.zip'
 
 // Key Vault
 param keyVaultSku string {

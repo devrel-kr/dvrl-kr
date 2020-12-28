@@ -48,7 +48,7 @@
     },
     "acmebotArtifactUrl": {
       "type": "string",
-      "defaultValue": "https://shibayan.blob.core.windows.net/azure-keyvault-letsencrypt/v3/latest.zip"
+      "defaultValue": "[format('https://shibayan.blob.{0}/azure-keyvault-letsencrypt/v3/latest.zip', environment().suffixes.storage)]"
     },
     "keyVaultSku": {
       "type": "string",

@@ -96,16 +96,33 @@ namespace DevRelKr.UrlShortener.Domains.Tests.Extensions
         }
 
         [TestMethod]
-        public async Task Given_Instance_When_UpdateRecordAsync_Invoked_Then_It_Should_Return_Result()
+        public async Task Given_Instance_With_Null_EntityId_When_UpdateRecordAsync_Invoked_Then_It_Should_Return_Result()
         {
             var instance = new Mock<IUrl>();
-            instance.Setup(p => p.UpdateRecordAsync<UrlResponse>(It.IsAny<DateTimeOffset>())).ReturnsAsync(instance.Object);
+            instance.Setup(p => p.UpdateRecordAsync<UrlResponse>(It.IsAny<DateTimeOffset>(), It.IsAny<Guid?>())).ReturnsAsync(instance.Object);
 
             var value = Task.FromResult(instance.Object);
 
             var now = DateTimeOffset.UtcNow;
+            var entityId = (Guid?)null;
 
-            var result = await UrlExtensions.UpdateRecordAsync<UrlResponse>(value, now).ConfigureAwait(false);
+            var result = await UrlExtensions.UpdateRecordAsync<UrlResponse>(value, now, entityId).ConfigureAwait(false);
+
+            result.Should().Be(instance.Object);
+        }
+
+        [TestMethod]
+        public async Task Given_Instance_When_UpdateRecordAsync_Invoked_Then_It_Should_Return_Result()
+        {
+            var instance = new Mock<IUrl>();
+            instance.Setup(p => p.UpdateRecordAsync<UrlResponse>(It.IsAny<DateTimeOffset>(), It.IsAny<Guid?>())).ReturnsAsync(instance.Object);
+
+            var value = Task.FromResult(instance.Object);
+
+            var now = DateTimeOffset.UtcNow;
+            var entityId = Guid.NewGuid();
+
+            var result = await UrlExtensions.UpdateRecordAsync<UrlResponse>(value, now, entityId).ConfigureAwait(false);
 
             result.Should().Be(instance.Object);
         }

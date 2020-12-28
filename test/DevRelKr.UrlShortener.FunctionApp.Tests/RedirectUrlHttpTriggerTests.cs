@@ -86,7 +86,7 @@ namespace DevRelKr.UrlShortener.FunctionApp.Tests
             url.Setup(p => p.GetRequestAsync(It.IsAny<HttpRequest>(), It.IsAny<string>())).ReturnsAsync(url.Object);
             url.Setup(p => p.ExpandAsync()).ReturnsAsync(url.Object);
             url.Setup(p => p.AddHitCountAsync<ExpanderResponse>()).ReturnsAsync(url.Object);
-            url.Setup(p => p.UpdateRecordAsync<ExpanderResponse>(It.IsAny<DateTimeOffset>())).ReturnsAsync(url.Object);
+            url.Setup(p => p.UpdateRecordAsync<ExpanderResponse>(It.IsAny<DateTimeOffset>(), It.IsAny<Guid?>())).ReturnsAsync(url.Object);
 
             var trigger = new RedirectUrlHttpTrigger(settings.Object, url.Object);
 

@@ -603,9 +603,10 @@ namespace DevRelKr.UrlShortener.Domains.Tests
         }
 
         [TestMethod]
-        public async Task Given_ExpanderResponse_When_UpdateRecordAsync_Invoked_Then_It_Should_Return_Result()
+        public void Given_ExpanderResponse_With_Null_EntityId_When_UpdateRecordAsync_Invoked_Then_It_Should_Throw_Exception()
         {
             var utcNow = DateTimeOffset.UtcNow;
+            var entityId = (Guid?)null;
 
             var shortener = new Mock<IShortenerService>();
             var expander = new Mock<IExpanderService>();
@@ -619,7 +620,55 @@ namespace DevRelKr.UrlShortener.Domains.Tests
             typeof(Url).GetProperty("DateGenerated", BindingFlags.Public | BindingFlags.Instance)
                        .SetValue(url, utcNow);
 
-            var result = await url.UpdateRecordAsync<ExpanderResponse>(utcNow)
+            Func<Task> func = async () => await url.UpdateRecordAsync<ExpanderResponse>(utcNow, entityId)
+                                                   .ConfigureAwait(false);
+
+            func.Should().Throw<ArgumentNullException>();
+        }
+
+        [TestMethod]
+        public void Given_ExpanderResponse_With_Empty_EntityId_When_UpdateRecordAsync_Invoked_Then_It_Should_Throw_Exception()
+        {
+            var utcNow = DateTimeOffset.UtcNow;
+            var entityId = Guid.Empty;
+
+            var shortener = new Mock<IShortenerService>();
+            var expander = new Mock<IExpanderService>();
+            var response = new ExpanderResponse();
+            response.DateGenerated = utcNow;
+            response.DateUpdated = utcNow;
+
+            var url = new Url(shortener.Object, expander.Object);
+            typeof(Url).GetProperty("ExpanderResponse", BindingFlags.Public | BindingFlags.Instance)
+                       .SetValue(url, response);
+            typeof(Url).GetProperty("DateGenerated", BindingFlags.Public | BindingFlags.Instance)
+                       .SetValue(url, utcNow);
+
+            Func<Task> func = async () => await url.UpdateRecordAsync<ExpanderResponse>(utcNow, entityId)
+                                                   .ConfigureAwait(false);
+
+            func.Should().Throw<ArgumentException>();
+        }
+
+        [TestMethod]
+        public async Task Given_ExpanderResponse_When_UpdateRecordAsync_Invoked_Then_It_Should_Return_Result()
+        {
+            var utcNow = DateTimeOffset.UtcNow;
+            var entityId = Guid.NewGuid();
+
+            var shortener = new Mock<IShortenerService>();
+            var expander = new Mock<IExpanderService>();
+            var response = new ExpanderResponse();
+            response.DateGenerated = utcNow;
+            response.DateUpdated = utcNow;
+
+            var url = new Url(shortener.Object, expander.Object);
+            typeof(Url).GetProperty("ExpanderResponse", BindingFlags.Public | BindingFlags.Instance)
+                       .SetValue(url, response);
+            typeof(Url).GetProperty("DateGenerated", BindingFlags.Public | BindingFlags.Instance)
+                       .SetValue(url, utcNow);
+
+            var result = await url.UpdateRecordAsync<ExpanderResponse>(utcNow, entityId)
                                   .ConfigureAwait(false);
 
             result.Should().BeOfType<Url>()

@@ -276,6 +276,16 @@ namespace DevRelKr.UrlShortener.Domains
         /// <inheritdoc/>
         public async Task<IUrl> UpdateRecordAsync<T>(DateTimeOffset now, Guid? entityId = null) where T : UrlResponse
         {
+            if (typeof(T) == typeof(ExpanderResponse) && !entityId.HasValue)
+            {
+                throw new ArgumentNullException(nameof(entityId));
+            }
+
+            if (typeof(T) == typeof(ExpanderResponse) && entityId.HasValue && entityId.Value == Guid.Empty)
+            {
+                throw new ArgumentException("Invalid entity ID");
+            }
+
             var dateUpdated = now;
 
             if (typeof(T) == typeof(ShortenerResponse))

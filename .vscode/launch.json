@@ -10,9 +10,19 @@
       "request": "launch",
       "preLaunchTask": "build",
       // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/test/DevRelKr.UrlShortener.FunctionApp.Tests/bin/Debug/netcoreapp3.1/DevRelKr.UrlShortener.FunctionApp.Tests.dll",
+      // "program": "${workspaceFolder}/test/DevRelKr.UrlShortener.Domains.Tests/bin/Debug/netcoreapp3.1/DevRelKr.UrlShortener.Domains.Tests.dll",
+      // "program": "${workspaceFolder}/test/DevRelKr.UrlShortener.FunctionApp.Tests/bin/Debug/netcoreapp3.1/DevRelKr.UrlShortener.FunctionApp.Tests.dll",
+      // "program": "${workspaceFolder}/test/DevRelKr.UrlShortener.Models.Tests/bin/Debug/netcoreapp3.1/DevRelKr.UrlShortener.Models.Tests.dll",
+      // "program": "${workspaceFolder}/test/DevRelKr.UrlShortener.Repositories.Tests/bin/Debug/netcoreapp3.1/DevRelKr.UrlShortener.Repositories.Tests.dll",
+      "program": "${workspaceFolder}/test/DevRelKr.UrlShortener.Services.Tests/bin/Debug/netcoreapp3.1/DevRelKr.UrlShortener.Services.Tests.dll",
+      // "program": "${workspaceFolder}/test/DevRelKr.UrlShortener.WebApp.Tests/bin/Debug/net5.0/DevRelKr.UrlShortener.WebApp.Tests.dll",
       "args": [],
-      "cwd": "${workspaceFolder}/test/DevRelKr.UrlShortener.FunctionApp.Tests",
+      // "cwd": "${workspaceFolder}/test/DevRelKr.UrlShortener.Domains.Tests",
+      // "cwd": "${workspaceFolder}/test/DevRelKr.UrlShortener.FunctionApp.Tests",
+      // "cwd": "${workspaceFolder}/test/DevRelKr.UrlShortener.Models.Tests",
+      // "cwd": "${workspaceFolder}/test/DevRelKr.UrlShortener.Repositories.Tests",
+      "cwd": "${workspaceFolder}/test/DevRelKr.UrlShortener.Services.Tests",
+      // "cwd": "${workspaceFolder}/test/DevRelKr.UrlShortener.WebApp.Tests",
       // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
       "console": "internalConsole",
       "stopAtEntry": false

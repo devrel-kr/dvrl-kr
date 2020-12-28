@@ -146,7 +146,7 @@ namespace DevRelKr.UrlShortener.Services.Tests
         {
             var settings = this._mocker.CreateAppSettingsInstance();
 
-            var item = new VisitItemEntity();
+            var item = new VisitItemEntity() { UrlId = Guid.NewGuid() };
             var query = new Mock<IQuery>();
 
             var command = new Mock<ICommand>();
@@ -157,6 +157,7 @@ namespace DevRelKr.UrlShortener.Services.Tests
             var payload = new ExpanderResponse()
             {
                 EntityId = Guid.NewGuid(),
+                UrlId = Guid.NewGuid(),
                 DateGenerated = DateTimeOffset.UtcNow,
                 DateUpdated = DateTimeOffset.UtcNow
             };

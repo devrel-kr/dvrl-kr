@@ -6,6 +6,7 @@ using DevRelKr.UrlShortener.Models.Requests;
 using DevRelKr.UrlShortener.Models.Responses;
 
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Primitives;
 
 namespace DevRelKr.UrlShortener.Domains
 {
@@ -103,6 +104,11 @@ namespace DevRelKr.UrlShortener.Domains
         /// Gets the <see cref="Dictionary{string, object}"/> instance as the expander request header values.
         /// </summary>
         Dictionary<string, object> ExpanderRequestHeaders { get; }
+
+        /// <summary>
+        /// Gets the <see cref="Dictionary{string, StringValues}"/> instance as the expander request querystring values.
+        /// </summary>
+        Dictionary<string, StringValues> ExpanderRequestQueries { get; }
 
         /// <summary>
         /// Gets the <see cref="Models.Responses.ExpanderResponse"/> instance.

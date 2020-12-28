@@ -11,6 +11,7 @@ using DevRelKr.UrlShortener.Models.Responses;
 using DevRelKr.UrlShortener.Services;
 
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Primitives;
 
 namespace DevRelKr.UrlShortener.Domains
 {
@@ -88,6 +89,9 @@ namespace DevRelKr.UrlShortener.Domains
         public Dictionary<string, object> ExpanderRequestHeaders { get; private set; } = new Dictionary<string, object>();
 
         /// <inheritdoc/>
+        public Dictionary<string, StringValues> ExpanderRequestQueries { get; private set; } = new Dictionary<string, StringValues>();
+
+        /// <inheritdoc/>
         public ExpanderResponse ExpanderResponse { get; private set; }
 
         /// <inheritdoc/>
@@ -120,9 +124,11 @@ namespace DevRelKr.UrlShortener.Domains
 
             var request = await req.GetExpanderRequestAsync(shortUrl).ConfigureAwait(false);
             var headers = req.Headers.ToDictionary(p => p.Key, p => p.Value.Count == 1 ? (object) p.Value.First() : p.Value.ToList());
+            var queries = req.Query.ToDictionary(p => p.Key, p => p.Value);
 
             this.ExpanderRequest = request;
             this.ExpanderRequestHeaders = headers;
+            this.ExpanderRequestQueries = queries;
 
             return this;
         }
@@ -227,6 +233,7 @@ namespace DevRelKr.UrlShortener.Domains
             if (response != null)
             {
                 this.ExpanderResponse.RequestHeaders = this.ExpanderRequestHeaders;
+                this.ExpanderResponse.RequestQueries = this.ExpanderRequestQueries;
             }
 
             return this;

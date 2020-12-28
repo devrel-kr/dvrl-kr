@@ -3,6 +3,8 @@ using System.Collections.Generic;
 
 using DevRelKr.UrlShortener.Models.Responses;
 
+using Microsoft.Extensions.Primitives;
+
 using Newtonsoft.Json;
 
 namespace DevRelKr.UrlShortener.Models.DataStores
@@ -36,6 +38,7 @@ namespace DevRelKr.UrlShortener.Models.DataStores
 
             this.UrlId = (payload as ExpanderResponse).UrlId;
             this.RequestHeaders = (payload as ExpanderResponse).RequestHeaders;
+            this.RequestQueries = (payload as ExpanderResponse).RequestQueries;
         }
 
         /// <summary>
@@ -70,5 +73,12 @@ namespace DevRelKr.UrlShortener.Models.DataStores
         [JsonRequired]
         [JsonProperty("requestHeaders")]
         public virtual Dictionary<string, object> RequestHeaders { get; set; } = new Dictionary<string, object>();
+
+        /// <summary>
+        /// Gets or sets the request querystring.
+        /// </summary>
+        [JsonRequired]
+        [JsonProperty("requestQueries")]
+        public virtual Dictionary<string, StringValues> RequestQueries { get; set; } = new Dictionary<string, StringValues>();
     }
 }

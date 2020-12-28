@@ -270,6 +270,9 @@ namespace DevRelKr.UrlShortener.Domains.Tests
             var headers = new HeaderDictionary(new Dictionary<string, StringValues>());
             req.SetupGet(p => p.Headers).Returns(headers);
 
+            var queries = new QueryCollection(new Dictionary<string, StringValues>());
+            req.SetupGet(p => p.Query).Returns(queries);
+
             var result = await url.GetRequestAsync(req.Object, shortUrl)
                                   .ConfigureAwait(false);
 

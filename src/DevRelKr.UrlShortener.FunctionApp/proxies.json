@@ -1,6 +1,12 @@
 {
   "$schema": "http://json.schemastore.org/proxies",
   "proxies": {
+    "Process": {
+      "matchCondition": {
+        "route": "/-/{*shortUrl}"
+      },
+      "backendUri": "/-/{shortUrl}"
+    },
     "Redirect": {
       "matchCondition": {
         "route": "/{shortUrl}"

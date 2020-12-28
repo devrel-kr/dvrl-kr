@@ -227,7 +227,7 @@ ClientBin/
 *.dbproj.schemaview
 *.jfm
 *.pfx
-*.publishsettings
+*.[Pp]ublish[Ss]ettings
 orleans.codegen.cs
 
 # Including strong name files can present a security risk

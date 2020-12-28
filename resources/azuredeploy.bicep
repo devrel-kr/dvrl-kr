@@ -79,6 +79,7 @@ resource cosdba 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = {
         CosmosAccountType: 'Non-Production'
     }
     properties: {
+        createMode: 'Default'
         databaseAccountOfferType: 'Standard'
         enableAutomaticFailover: cosmosDb.enableAutomaticFailover
         consistencyPolicy: {
@@ -87,10 +88,10 @@ resource cosdba 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = {
             maxStalenessPrefix: 100
         }
         locations: [
-			{
-				locationName: cosmosDb.region.primary
-				failoverPriority: 0
-				isZoneRedundant: false
+            {
+                locationName: cosmosDb.region.primary
+                failoverPriority: 0
+                isZoneRedundant: false
             }
         ]
         capabilities: [
@@ -153,6 +154,27 @@ resource st 'Microsoft.Storage/storageAccounts@2019-06-01' = {
     }
 }
 
+var workspace = {
+    name: format(metadata.longName, 'wrkspc')
+    location: location
+}
+
+resource wrkspc 'Microsoft.OperationalInsights/workspaces@2020-08-01' = {
+    name: workspace.name
+    location: workspace.location
+    properties: {
+        sku: {
+            name: 'PerGB2018'
+        }
+        retentionInDays: 30
+        workspaceCapping: {
+            dailyQuotaGb: -1
+        }
+        publicNetworkAccessForIngestion: 'Enabled'
+        publicNetworkAccessForQuery: 'Enabled'
+    }
+}
+
 var appInsights = {
     name: format(metadata.longName, 'appins')
     location: location
@@ -163,8 +185,10 @@ resource appins 'Microsoft.Insights/components@2020-02-02-preview' = {
     location: appInsights.location
     kind: 'web'
     properties: {
+        Flow_Type: 'Bluefield'
         Application_Type: 'web'
-        Request_Source: 'IbizaWebAppExtensionCreate'
+        Request_Source: 'rest'
+        WorkspaceResourceId: wrkspc.id
     }
 }
 
@@ -173,16 +197,13 @@ var servicePlan = {
     location: location
 }
 
-resource csplan 'Microsoft.Web/serverfarms@2019-08-01' = {
+resource csplan 'Microsoft.Web/serverfarms@2020-06-01' = {
     name: servicePlan.name
     location: servicePlan.location
+    kind: 'functionApp'
     sku: {
         name: 'Y1'
         tier: 'Dynamic'
-    }
-    properties: {
-        name: servicePlan.name
-        computeMode: 'Dynamic'
     }
 }
 
@@ -209,7 +230,6 @@ resource fncapp 'Microsoft.Web/sites@2020-06-01' = {
     properties: {
         serverFarmId: csplan.id
         httpsOnly: true
-        alwaysOn: true
         siteConfig: {
             appSettings: [
                 {
@@ -223,6 +243,10 @@ resource fncapp 'Microsoft.Web/sites@2020-06-01' = {
                 {
                     name: 'AZURE_FUNCTIONS_ENVIRONMENT'
                     value: functionApp.environment
+                }
+                {
+                    name: 'AZURE_FUNCTION_PROXY_BACKEND_URL_DECODE_SLASHES'
+                    value: 'true'
                 }
                 {
                     name: 'AzureWebJobsStorage'
@@ -279,7 +303,7 @@ resource fncapp 'Microsoft.Web/sites@2020-06-01' = {
                 }
                 {
                     name: 'ShortenUrl__Length'
-                    value: dvrlkr.urlShortenerLength
+                    value: '${dvrlkr.urlShortenerLength}'
                 }
                 {
                     name: 'CosmosDb__DatabaseName'
@@ -300,13 +324,12 @@ resource fncapp 'Microsoft.Web/sites@2020-06-01' = {
 
 resource fncappHostname 'Microsoft.Web/sites/hostNameBindings@2020-06-01' = {
     name: '${fncapp.name}/${functionApp.hostname}'
-    location: functionApp.location
 }
 
-resource fncappLetsencrypt 'Microsoft.Web/sites/siteextensions@2020-06-01' = {
-    name: '${fncapp.name}/letsencrypt'
-    location: functionApp.location
-    properties: {
-        key1: 'value1'
-    }
-}
+// resource fncappLetsencrypt 'Microsoft.Web/sites/siteextensions@2020-06-01' = {
+//     name: '${fncapp.name}/letsencrypt'
+//     location: functionApp.location
+//     properties: {
+//         key1: 'value1'
+//     }
+// }

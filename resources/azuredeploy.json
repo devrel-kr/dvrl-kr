@@ -112,6 +112,10 @@
       "sku": "[parameters('storageAccountSku')]",
       "letsEncryptChallenge": "[parameters('storageContainerLetsEncryptChallenge')]"
     },
+    "workspace": {
+      "name": "[format(variables('metadata').longName, 'wrkspc')]",
+      "location": "[parameters('location')]"
+    },
     "appInsights": {
       "name": "[format(variables('metadata').longName, 'appins')]",
       "location": "[parameters('location')]"
@@ -147,6 +151,7 @@
         "CosmosAccountType": "Non-Production"
       },
       "properties": {
+        "createMode": "Default",
         "databaseAccountOfferType": "Standard",
         "enableAutomaticFailover": "[variables('cosmosDb').enableAutomaticFailover]",
         "consistencyPolicy": {
@@ -223,20 +228,21 @@
       }
     },
     {
-      "type": "Microsoft.Storage/storageAccounts/blobServices",
-      "apiVersion": "2019-06-01",
-      "name": "[format('{0}/default', variables('storage').name)]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Storage/storageAccounts', variables('storage').name)]"
-      ]
-    },
-    {
-      "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
-      "apiVersion": "2019-06-01",
-      "name": "[format('{0}/{1}', format('{0}/default', variables('storage').name), variables('storage').letsEncryptChallenge)]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Storage/storageAccounts/blobServices', split(format('{0}/default', variables('storage').name), '/')[0], split(format('{0}/default', variables('storage').name), '/')[1])]"
-      ]
+      "type": "Microsoft.OperationalInsights/workspaces",
+      "apiVersion": "2020-08-01",
+      "name": "[variables('workspace').name]",
+      "location": "[variables('workspace').location]",
+      "properties": {
+        "sku": {
+          "name": "PerGB2018"
+        },
+        "retentionInDays": 30,
+        "workspaceCapping": {
+          "dailyQuotaGb": -1
+        },
+        "publicNetworkAccessForIngestion": "Enabled",
+        "publicNetworkAccessForQuery": "Enabled"
+      }
     },
     {
       "type": "Microsoft.Insights/components",
@@ -245,9 +251,14 @@
       "location": "[variables('appInsights').location]",
       "kind": "web",
       "properties": {
+        "Flow_Type": "Bluefield",
         "Application_Type": "web",
-        "Request_Source": "IbizaWebAppExtensionCreate"
-      }
+        "Request_Source": "rest",
+        "WorkspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', variables('workspace').name)]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.OperationalInsights/workspaces', variables('workspace').name)]"
+      ]
     },
     {
       "type": "Microsoft.Web/serverfarms",
@@ -259,8 +270,7 @@
         "tier": "Dynamic"
       },
       "properties": {
-        "name": "[variables('servicePlan').name]",
-        "computeMode": "Dynamic"
+        "reserved": true
       }
     },
     {
@@ -272,16 +282,15 @@
       "properties": {
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('servicePlan').name)]",
         "httpsOnly": true,
-        "alwaysOn": true,
         "siteConfig": {
           "appSettings": [
             {
               "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-              "value": "[format('{0}', reference(resourceId('Microsoft.Insights/components', variables('appInsights').name), '2020-02-02-preview', 'Full').properties.InstrumentationKey)]"
+              "value": "[reference(resourceId('Microsoft.Insights/components', variables('appInsights').name), '2020-02-02-preview', 'Full').properties.InstrumentationKey]"
             },
             {
               "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
-              "value": "[format('{0}', reference(resourceId('Microsoft.Insights/components', variables('appInsights').name), '2020-02-02-preview', 'Full').properties.connectionString)]"
+              "value": "[reference(resourceId('Microsoft.Insights/components', variables('appInsights').name), '2020-02-02-preview', 'Full').properties.connectionString]"
             },
             {
               "name": "AZURE_FUNCTIONS_ENVIRONMENT",
@@ -369,23 +378,9 @@
       "type": "Microsoft.Web/sites/hostNameBindings",
       "apiVersion": "2020-06-01",
       "name": "[format('{0}/{1}', variables('functionApp').name, variables('functionApp').hostname)]",
-      "location": "[variables('functionApp').location]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Web/sites', variables('functionApp').name)]"
-      ]
-    },
-    {
-      "type": "Microsoft.Web/sites/siteextensions",
-      "apiVersion": "2020-06-01",
-      "name": "[format('{0}/letsencrypt', variables('functionApp').name)]",
-      "location": "[variables('functionApp').location]",
-      "properties": {
-        "key1": "value1"
-      },
       "dependsOn": [
         "[resourceId('Microsoft.Web/sites', variables('functionApp').name)]"
       ]
     }
-  ],
-  "outputs": {}
+  ]
 }

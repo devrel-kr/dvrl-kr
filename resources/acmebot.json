@@ -70,6 +70,10 @@
       "location": "[parameters('location')]",
       "sku": "[parameters('storageAccountSku')]"
     },
+    "workspace": {
+      "name": "[format(variables('metadata').longName, 'wrkspc')]",
+      "location": "[parameters('location')]"
+    },
     "appInsights": {
       "name": "[format(variables('metadata').longName, 'appins')]",
       "location": "[parameters('location')]"
@@ -114,15 +118,37 @@
       }
     },
     {
+      "type": "Microsoft.OperationalInsights/workspaces",
+      "apiVersion": "2020-08-01",
+      "name": "[variables('workspace').name]",
+      "location": "[variables('workspace').location]",
+      "properties": {
+        "sku": {
+          "name": "PerGB2018"
+        },
+        "retentionInDays": 30,
+        "workspaceCapping": {
+          "dailyQuotaGb": -1
+        },
+        "publicNetworkAccessForIngestion": "Enabled",
+        "publicNetworkAccessForQuery": "Enabled"
+      }
+    },
+    {
       "type": "Microsoft.Insights/components",
       "apiVersion": "2020-02-02-preview",
       "name": "[variables('appInsights').name]",
       "location": "[variables('appInsights').location]",
       "kind": "web",
       "properties": {
+        "Flow_Type": "Bluefield",
         "Application_Type": "web",
-        "Request_Source": "IbizaWebAppExtensionCreate"
-      }
+        "Request_Source": "rest",
+        "WorkspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', variables('workspace').name)]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.OperationalInsights/workspaces', variables('workspace').name)]"
+      ]
     },
     {
       "type": "Microsoft.Web/serverfarms",
@@ -134,8 +160,7 @@
         "tier": "Dynamic"
       },
       "properties": {
-        "name": "[variables('servicePlan').name]",
-        "computeMode": "Dynamic"
+        "reserved": true
       }
     },
     {
@@ -150,17 +175,15 @@
       "properties": {
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('servicePlan').name)]",
         "httpsOnly": true,
-        "alwaysOn": true,
         "siteConfig": {
-          "clientAffinityEnabled": false,
           "appSettings": [
             {
               "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-              "value": "[format('{0}', reference(resourceId('Microsoft.Insights/components', variables('appInsights').name), '2020-02-02-preview', 'Full').properties.InstrumentationKey)]"
+              "value": "[reference(resourceId('Microsoft.Insights/components', variables('appInsights').name), '2020-02-02-preview', 'Full').properties.InstrumentationKey]"
             },
             {
               "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
-              "value": "[format('{0}', reference(resourceId('Microsoft.Insights/components', variables('appInsights').name), '2020-02-02-preview', 'Full').properties.connectionString)]"
+              "value": "[reference(resourceId('Microsoft.Insights/components', variables('appInsights').name), '2020-02-02-preview', 'Full').properties.connectionString]"
             },
             {
               "name": "AZURE_FUNCTIONS_ENVIRONMENT",
@@ -242,7 +265,7 @@
         "accessPolicies": [
           {
             "tenantId": "[subscription().tenantId]",
-            "objectId": "[format('{0}', reference(resourceId('Microsoft.Web/sites', variables('functionApp').name), '2020-06-01', 'Full').identity.principalId)]",
+            "objectId": "[reference(resourceId('Microsoft.Web/sites', variables('functionApp').name), '2020-06-01', 'Full').identity.principalId]",
             "permissions": {
               "certificates": [
                 "get",
@@ -258,6 +281,5 @@
         "[resourceId('Microsoft.Web/sites', variables('functionApp').name)]"
       ]
     }
-  ],
-  "outputs": {}
+  ]
 }

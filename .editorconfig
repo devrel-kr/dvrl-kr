@@ -58,6 +58,10 @@ indent_size = 2
 [*.sh]
 end_of_line = lf
 
+# Bicep files
+[*.bicep]
+indent_size = 4
+
 ##########################################
 # .NET Language Conventions
 # https://docs.microsoft.com/visualstudio/ide/editorconfig-language-conventions

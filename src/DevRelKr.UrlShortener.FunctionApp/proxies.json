@@ -3,12 +3,12 @@
   "proxies": {
     "Redirect": {
       "matchCondition": {
-        "route": "/{shortUrl}"
+        "route": "/{*all}"
       },
       "responseOverrides": {
         "response.statusCode": "301",
         "response.statusReason": "Moved Permanently",
-        "response.headers.location": "/-/{shortUrl}"
+        "response.headers.location": "/-/{all}"
       }
     },
     "Root": {

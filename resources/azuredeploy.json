@@ -297,6 +297,10 @@
               "value": "[variables('functionApp').environment]"
             },
             {
+              "name": "AZURE_FUNCTION_PROXY_BACKEND_URL_DECODE_SLASHES",
+              "value": "true"
+            },
+            {
               "name": "AzureWebJobsStorage",
               "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', variables('storage').name, environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storage').name), '2019-06-01').keys[0].value)]"
             },

@@ -247,6 +247,10 @@ resource fncapp 'Microsoft.Web/sites@2020-06-01' = {
                     value: functionApp.environment
                 }
                 {
+                    name: 'AZURE_FUNCTION_PROXY_BACKEND_URL_DECODE_SLASHES'
+                    value: 'true'
+                }
+                {
                     name: 'AzureWebJobsStorage'
                     value: 'DefaultEndpointsProtocol=https;AccountName=${st.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(st.id, '2019-06-01').keys[0].value}'
                 }
@@ -301,7 +305,7 @@ resource fncapp 'Microsoft.Web/sites@2020-06-01' = {
                 }
                 {
                     name: 'ShortenUrl__Length'
-                    value: dvrlkr.urlShortenerLength
+                    value: '${dvrlkr.urlShortenerLength}'
                 }
                 {
                     name: 'CosmosDb__DatabaseName'
